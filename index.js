@@ -46,28 +46,25 @@ page.innerHTML = `${y} - ${count}`;
 const btnNext = document.querySelector('.next');
 const btnPreview = document.querySelector('.preview');
 
-btnNext.addEventListener('click', handlerNext);
-btnPreview.addEventListener('click', handlerPreview);
-
-function handlerNext() {
-    if (count < Math.floor(EMPLOYEES.length / y)) {
+// btnNext.addEventListener('click', handlerNext());
+const handlerNext = (array) => {
+    console.log(array);
+    if (count < Math.floor(array.length / y)) {
         count++;
-
-        resultRender = [...cutPage(EMPLOYEES, count, y)];
-        handlerSortName(resultRender);
-
+        resultRender = [...cutPage(array, count, y)];
         card.innerHTML = render(resultRender);
         page.innerHTML = `${count * y} - ${count * y - y + 1}`;
     } else {
-        count = Math.floor(EMPLOYEES.length / y);
+        count = Math.floor(array.length / y);
     }
-}
+};
 
-function handlerPreview() {
+handlerNext(EMPLOYEES);
+
+const handlerPreview = () => {
     if (count > 1) {
         count--;
         resultRender = [...cutPage(EMPLOYEES, count, y)];
-
         card.innerHTML = render(resultRender);
         handlerSortName(resultRender);
 
@@ -75,9 +72,16 @@ function handlerPreview() {
     } else {
         count = 1;
     }
-}
+};
+
+// Khi gán biến nào đó bằng 1 hàm thì không được thêm dấu () sau tên hàm
+
+btnNext.onclick = handlerNext; // Nếu có hàm đã được thực thi rồi
+btnPreview.onclick = handlerPreview;
 
 const inputSearch = document.querySelector('.search__input');
+
+// Chỉ có 2 trạng thái chính. Đã tìm kiếm và chưa tìm kiếm -> chia làm 2 trường hợp
 
 // Tìm kiếm theo tên, email, công việc
 const handlerFind = (api, keyword) => {
@@ -86,14 +90,9 @@ const handlerFind = (api, keyword) => {
     api.forEach((value) => {
         if (value.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
             resultSearch.push(value);
-        } else if (
-            String(value.email).toLowerCase().indexOf(keyword.toLowerCase()) >
-            -1
-        ) {
+        } else if (String(value.email).toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
             resultSearch.push(value);
-        } else if (
-            String(value.job).toLowerCase().indexOf(keyword.toLowerCase()) > -1
-        ) {
+        } else if (String(value.job).toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
             resultSearch.push(value);
         }
     });
@@ -130,16 +129,8 @@ const handlerSortName = (array) => {
         btnSortAZ.addEventListener('click', handlerClick);
         function handlerClick() {
             array.sort(function (a, b) {
-                var lastNameA = a.name
-                    .split(' ')
-                    .slice(-1)
-                    .join(' ')
-                    .toUpperCase();
-                var lastNameB = b.name
-                    .split(' ')
-                    .slice(-1)
-                    .join(' ')
-                    .toUpperCase();
+                var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
+                var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
 
                 if (lastNameA < lastNameB) {
                     return -1;
@@ -156,16 +147,8 @@ const handlerSortName = (array) => {
         btnSortZA.addEventListener('click', handlerClick);
         function handlerClick() {
             array.sort(function (a, b) {
-                var lastNameA = a.name
-                    .split(' ')
-                    .slice(-1)
-                    .join(' ')
-                    .toUpperCase();
-                var lastNameB = b.name
-                    .split(' ')
-                    .slice(-1)
-                    .join(' ')
-                    .toUpperCase();
+                var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
+                var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
 
                 if (lastNameA < lastNameB) {
                     return 1;
@@ -208,10 +191,7 @@ const handlerAdd = (array) => {
     let id = Math.max(...listID) + 1;
 
     add__btn.addEventListener('click', () => {
-        if (
-            String(name__member.value) === '' ||
-            String(job__position.value) === ''
-        ) {
+        if (String(name__member.value) === '' || String(job__position.value) === '') {
             message.innerHTML = 'Vui lòng nhập đầy đủ thông tin!';
         } else {
             id = id + 1;
@@ -239,8 +219,6 @@ const handlerAdd = (array) => {
 
                     let email = `${lastName}.${firstName}`;
 
-                    console.log(email);
-
                     let firstEmail = [];
                     let check = false;
 
@@ -251,25 +229,40 @@ const handlerAdd = (array) => {
                         }
                     });
 
-                    console.log(firstEmail);
-
                     if (check) {
                         // nếu email đã tồn tại thì thêm trị số
                         firstEmail.sort();
-                        const number =
-                            Number(
-                                String(firstEmail[firstEmail.length - 1])
-                                    .match(/\d/g)
-                                    .join(''),
-                            ) + 1;
-                        console.log(number);
+                        let number = String(firstEmail[firstEmail.length - 1]).match(/\d/g);
+
+                        if (number === null) {
+                            email = `${email}1@ntq-solution.com.vn`;
+                        } else {
+                            number =
+                                Number(
+                                    String(firstEmail[firstEmail.length - 1])
+                                        .match(/\d/g)
+                                        .join(''),
+                                ) + 1;
+                            email = `${email.concat(number)}@ntq-solution.com.vn`;
+                        }
+
+                        (dataAdd = {
+                            id: id,
+                            ...dataAdd,
+                            email: email,
+                        }),
+                            array.unshift(dataAdd);
+                        card.innerHTML = render(array);
                     } else {
-                        // trả về email như trên đã trả dòng 240.
+                        email = `${email}@ntq-solution.com.vn`;
+                        (dataAdd = {
+                            id: id,
+                            ...dataAdd,
+                            email: email,
+                        }),
+                            array.unshift(dataAdd);
+                        card.innerHTML = render(array);
                     }
-
-                    // gán lại mảng
-
-                    console.log(firstEmail);
                 }
             }
         }

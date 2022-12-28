@@ -1,0 +1,72 @@
+<av__page--!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div class="sidebar">
+            <img src="https://opms.ntq.solutions/web/binary/company_logo?db=opms11&company=1" alt="" class="logo">
+            <ul class="action__list">
+                <div class="title">Employees</div>
+                <li class="action__item action__item--active">Employees</li>
+                <li class="action__item">Adjust Employees</li>
+                <li class="action__item">Members Employees</li>
+            </ul>
+            <ul class="action__list"><div class="title">Departments</div></ul>
+            <ul class="action__list"><div class="title">Termination Request</div></ul>
+        </div>
+        <div class="content">
+            <div class="action">
+                <div class="search">
+                    <input type = "text" class="search__input"></input>
+                </div>
+                <div class="add">
+                    <input type="text" placeholder="Tên nhân viên" class="add__input name__member">
+                    <input type="text" placeholder="Trị số" class="add__input small" disabled>
+                    <input type="text" placeholder="Email" class="add__input" disabled>
+                    <input type="text" placeholder="Vị trí công việc" class="add__input job__position">
+                    <input class="add__btn" type="submit" value="Thêm mới nhân viên" />
+                </div>
+
+                <div class="message" style="margin-left: 16px; color: red"></div>
+                <div class="toolbar">
+                    <div class="nav__page hav--boder">
+                        <div class="select">
+                            <i class="fa-solid fa-bars select__icon"></i>
+                            <div class="filter">
+                                Filter
+                                <div class="sort">
+                                    <button class="sort__item atoZ">A-Z</button>
+                                    <button class="sort__item ztoA">Z-A</button>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                    </div>  
+                    <div class="nav__page">
+                        <div class="nav__page--text"></div>
+                        <button class="nav__page--btn preview">
+                            <i class="fa-solid fa-chevron-left nav__page--icon"></i>
+                        </button>
+                        <button class="nav__page--btn next">
+                            <i class="fa-solid fa-chevron-right nav__page--icon"></i>
+                        </button>
+                    </div>
+                </div>     
+            </div>   
+                <ul class="card">
+                    
+                </ul>
+                
+        </div>
+    </div>
+    <script type="module" src="./index.js"></script>
+</body>
+</html>

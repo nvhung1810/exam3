@@ -211,3 +211,19 @@ body {
     border: none;
     cursor: pointer;
 }
+
+.contact {
+    width: 52px;
+    display: flex;
+    align-items: center;
+}
+
+.avt {
+    width: 52px;
+    height: 52px;
+    font-size: 24px;
+    text-align: center;
+    background-color: #bdacdf;
+    line-height: 52px;
+    border-radius: 2px;
+}

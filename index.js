@@ -24,7 +24,7 @@ const render = (api) => {
             return `
             <li class="wrap">
                 <div class="contact">
-                    <img src="https://d1hjkbq40fs2x4.cloudfront.net/2017-08-21/files/landscape-photography_1645-t.jpg" alt="" class="contact__img">
+                    <div class="avt">${element.avt}</div>
                 </div>
                 <div class="infomation">
                     <div class="infomation__name">${element.name}</div>
@@ -42,6 +42,26 @@ const render = (api) => {
     return renderResult;
 };
 
+let newTotal = [];
+const handleAvt = (data) => {
+    data.forEach((item) => {
+        const fullName = item.name;
+        const lastName = fullName.split(' ').slice(-1).join(' ');
+        const avt = lastName.charAt(0);
+        newTotal.push({
+            id: item.id,
+            name: item.name,
+            job: item.job,
+            email: item.email,
+            avt: avt,
+        });
+    });
+    return newTotal;
+};
+
+const newData = handleAvt(total);
+console.log(newData);
+
 const cutPage = (value, x, y) => {
     // count: x, y: value
     const valueSlice = value.slice((x - 1) * y + 1, (x - 1) * y + y + 1);
@@ -54,7 +74,7 @@ const cutAndRender = (data) => {
     return resultRender;
 };
 
-cutAndRender(total);
+cutAndRender(newTotal);
 
 page.innerHTML = `${y} - ${count}`;
 
@@ -102,10 +122,10 @@ const handlerFind = (api, keyword) => {
 // ----------------------TRẠNG THÁI BAN ĐẦU KHI CHƯA TÌM KIẾM -------------
 
 btnNext.onclick = function () {
-    handlerNext(total);
+    handlerNext(newTotal);
 };
 btnPreview.onclick = function () {
-    handlerPreview(total);
+    handlerPreview(newTotal);
 };
 
 // ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
@@ -118,7 +138,7 @@ inputSearch.addEventListener('keydown', function (event) {
         let valueInput = inputSearch.value; // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
 
         if (valueInput !== '') {
-            let resultSearch = handlerFind(total, valueInput); // LẤY DỮ LIỆU PHÙ HỢP
+            let resultSearch = handlerFind(newTotal, valueInput); // LẤY DỮ LIỆU PHÙ HỢP
             cutAndRender(resultSearch);
             btnNext.onclick = function () {
                 handlerNext(resultSearch);
@@ -214,10 +234,12 @@ const changeEnglish = (a) => {
         .toLowerCase();
     return a;
 };
-const handlerAdd = (array, id) => {
-    let dataAdd = {};
 
-    add__btn.addEventListener('click', () => {
+let test = 1;
+
+add__btn.addEventListener('click', () => {
+    const handlerAdd = (array, id) => {
+        let dataAdd = {};
         if (String(name__member.value) === '' || String(job__position.value) === '') {
             message.innerHTML = 'Vui lòng nhập đầy đủ thông tin!';
         } else {
@@ -260,27 +282,22 @@ const handlerAdd = (array, id) => {
                     email = `${email.concat(number)}@ntq-solution.com.vn`;
                 }
 
-                (dataAdd = {
+                dataAdd = {
                     id: id,
                     name: Standardized(name__member.value).trim(),
                     job: job__position.value,
                     email: email,
-                }),
-                    array.unshift(dataAdd);
-                cutAndRender(array);
+                };
             } else {
                 email = `${email}@ntq-solution.com.vn`;
-                (dataAdd = {
+                dataAdd = {
                     id: id,
                     name: Standardized(name__member.value).trim(),
                     job: job__position.value,
                     email: email,
-                }),
-                    array.unshift(dataAdd);
-                cutAndRender(array);
+                };
             }
         }
-    });
-};
-
-handlerAdd(total, handlerID(total));
+    };
+    handlerAdd(newTotal, handlerID(newTotal));
+});

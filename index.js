@@ -1,9 +1,25 @@
 import { EMPLOYEES } from './MOCK_DATA.js';
+const total = EMPLOYEES;
 // B1:
 const card = document.querySelector('.card');
+const inputSearch = document.querySelector('.search__input');
+const btnNext = document.querySelector('.next');
+const btnPreview = document.querySelector('.preview');
+const page = document.querySelector('.nav__page--text');
+const select = document.querySelector('.select');
+const sort = document.querySelector('.sort');
+const btnSortAZ = document.querySelector('.atoZ');
+const btnSortZA = document.querySelector('.ztoA');
+const name__member = document.querySelector('.name__member');
+const job__position = document.querySelector('.job__position');
+const add__btn = document.querySelector('.add__btn');
+const message = document.querySelector('.message');
 
-const render = (datas) => {
-    const renderResult = datas
+let count = 1;
+let y = 21;
+
+const render = (api) => {
+    const renderResult = api
         .map((element) => {
             return `
             <li class="wrap">
@@ -26,64 +42,48 @@ const render = (datas) => {
     return renderResult;
 };
 
-let count = 1;
-let y = 21;
-
 const cutPage = (value, x, y) => {
     // count: x, y: value
     const valueSlice = value.slice((x - 1) * y + 1, (x - 1) * y + y + 1);
     return valueSlice;
 };
 
-let resultRender = [...cutPage(EMPLOYEES, count, y)];
-const page = document.querySelector('.nav__page--text');
+const cutAndRender = (data) => {
+    let resultRender = [...cutPage(data, count, y)];
+    card.innerHTML = render(resultRender);
+    return resultRender;
+};
 
-card.innerHTML = render(resultRender);
+cutAndRender(total);
+
 page.innerHTML = `${y} - ${count}`;
 
 // NEXT AND PREVIEW PAGE
 
-const btnNext = document.querySelector('.next');
-const btnPreview = document.querySelector('.preview');
-
-// btnNext.addEventListener('click', handlerNext());
 const handlerNext = (array) => {
-    console.log(array);
-    if (count < Math.floor(array.length / y)) {
+    if (count < Math.ceil(array.length / y)) {
         count++;
-        resultRender = [...cutPage(array, count, y)];
-        card.innerHTML = render(resultRender);
+        cutAndRender(array);
         page.innerHTML = `${count * y} - ${count * y - y + 1}`;
     } else {
-        count = Math.floor(array.length / y);
+        count = Math.ceil(array.length / y);
     }
 };
 
-handlerNext(EMPLOYEES);
-
-const handlerPreview = () => {
+const handlerPreview = (array) => {
     if (count > 1) {
         count--;
-        resultRender = [...cutPage(EMPLOYEES, count, y)];
-        card.innerHTML = render(resultRender);
-        handlerSortName(resultRender);
-
+        cutAndRender(array);
         page.innerHTML = `${count * y} - ${count * y - y + 1}`;
     } else {
         count = 1;
     }
 };
 
+// Nếu có hàm đã được thực thi rồi
 // Khi gán biến nào đó bằng 1 hàm thì không được thêm dấu () sau tên hàm
 
-btnNext.onclick = handlerNext; // Nếu có hàm đã được thực thi rồi
-btnPreview.onclick = handlerPreview;
-
-const inputSearch = document.querySelector('.search__input');
-
-// Chỉ có 2 trạng thái chính. Đã tìm kiếm và chưa tìm kiếm -> chia làm 2 trường hợp
-
-// Tìm kiếm theo tên, email, công việc
+// SEARCH
 const handlerFind = (api, keyword) => {
     let resultSearch = [];
 
@@ -96,25 +96,42 @@ const handlerFind = (api, keyword) => {
             resultSearch.push(value);
         }
     });
-    console.log(resultSearch);
     return resultSearch;
 };
 
+// ----------------------TRẠNG THÁI BAN ĐẦU KHI CHƯA TÌM KIẾM -------------
+
+btnNext.onclick = function () {
+    handlerNext(total);
+};
+btnPreview.onclick = function () {
+    handlerPreview(total);
+};
+
+// ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
+
 inputSearch.addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
+        count = 1;
+
         event.preventDefault();
-        let valueInput = inputSearch.value;
-        let resultSearch = handlerFind(EMPLOYEES, valueInput);
-        card.innerHTML = render(resultSearch);
+        let valueInput = inputSearch.value; // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
+
+        if (valueInput !== '') {
+            let resultSearch = handlerFind(total, valueInput); // LẤY DỮ LIỆU PHÙ HỢP
+            cutAndRender(resultSearch);
+            btnNext.onclick = function () {
+                handlerNext(resultSearch);
+            };
+
+            btnPreview.onclick = function () {
+                handlerPreview(resultSearch);
+            };
+        }
     }
 });
 
 // SAP XEP
-
-const select = document.querySelector('.select');
-const sort = document.querySelector('.sort');
-const btnSortAZ = document.querySelector('.atoZ');
-const btnSortZA = document.querySelector('.ztoA');
 
 select.addEventListener('click', handlerToggle);
 
@@ -124,71 +141,81 @@ function handlerToggle() {
 
 // SORT A-Z, Z-A
 
-const handlerSortName = (array) => {
-    if (btnSortAZ) {
-        btnSortAZ.addEventListener('click', handlerClick);
-        function handlerClick() {
-            array.sort(function (a, b) {
-                var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
-                var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
+// const handlerSortName = (array) => {
+//     if (btnSortAZ) {
+//         btnSortAZ.addEventListener('click', handlerClick);
+//         function handlerClick() {
+//             array.sort(function (a, b) {
+//                 var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
+//                 var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
 
-                if (lastNameA < lastNameB) {
-                    return -1;
-                }
-                if (lastNameA > lastNameB) {
-                    return 1;
-                }
-                return 0;
-            });
-            card.innerHTML = render(array);
-        }
-    }
-    if (btnSortZA) {
-        btnSortZA.addEventListener('click', handlerClick);
-        function handlerClick() {
-            array.sort(function (a, b) {
-                var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
-                var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
+//                 if (lastNameA < lastNameB) {
+//                     return -1;
+//                 }
+//                 if (lastNameA > lastNameB) {
+//                     return 1;
+//                 }
+//                 return 0;
+//             });
+//             card.innerHTML = render(array);
+//         }
+//     }
+//     if (btnSortZA) {
+//         btnSortZA.addEventListener('click', handlerClick);
+//         function handlerClick() {
+//             array.sort(function (a, b) {
+//                 var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
+//                 var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
 
-                if (lastNameA < lastNameB) {
-                    return 1;
-                }
-                if (lastNameA > lastNameB) {
-                    return -1;
-                }
-                return 0;
-            });
-            card.innerHTML = render(array);
-        }
-    }
-};
+//                 if (lastNameA < lastNameB) {
+//                     return 1;
+//                 }
+//                 if (lastNameA > lastNameB) {
+//                     return -1;
+//                 }
+//                 return 0;
+//             });
+//             card.innerHTML = render(array);
+//         }
+//     }
+// };
 
-handlerSortName(resultRender);
+// handlerSortName(resultRender);
 
 // Thêm mới nhân viên: sau khi nhập tên sẽ tự sinh ra email
 // (có dạng: Tên.Họ + @ntq-solution.com.vn),
 // nếu tên hoặc email đã tồn tại trong danh sách sẽ tự động thêm trị số(1, 2 ,3).
 // Thêm mới sẽ lên đầu danh sách.
 
-const name__member = document.querySelector('.name__member');
-const job__position = document.querySelector('.job__position');
-const add__btn = document.querySelector('.add__btn');
-const message = document.querySelector('.message');
-
-function Test() {
-    console.log(123);
+function Standardized(value) {
+    value = value.replace(/\s/g, ' ');
+    value = value.trim().toLowerCase();
+    let separated = value.split(' '); // mảng chứa tên, họ, tên đệm
+    let result = '';
+    separated.forEach((element) => {
+        result += element.slice(0, 1).toUpperCase() + element.substring(1) + ' ';
+    });
+    return result;
 }
 
-const handlerAdd = (array) => {
-    let dataAdd = [];
-
+const handlerID = (value) => {
     let listID = [];
-
-    array.forEach((element) => {
+    value.forEach((element) => {
         listID.push(element.id);
     });
+    let id = Math.max(...listID);
+    return id;
+};
 
-    let id = Math.max(...listID) + 1;
+const changeEnglish = (a) => {
+    a = a
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+    return a;
+};
+const handlerAdd = (array, id) => {
+    let dataAdd = {};
 
     add__btn.addEventListener('click', () => {
         if (String(name__member.value) === '' || String(job__position.value) === '') {
@@ -196,77 +223,64 @@ const handlerAdd = (array) => {
         } else {
             id = id + 1;
             message.innerHTML = '';
-            dataAdd = {
-                name: name__member.value,
-                job: job__position.value,
-            };
 
-            for (const key in dataAdd) {
-                if (key === 'name') {
-                    let fullName = dataAdd[key];
-                    let firstName = fullName.split(' ').slice(0, 1).join(' ');
-                    let lastName = fullName.split(' ').slice(-1).join(' ');
+            let fullName = name__member.value;
+            let firstName = fullName.split(' ').slice(0, 1).join(' ');
+            let lastName = fullName.split(' ').slice(-1).join(' ');
 
-                    firstName = firstName
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '')
-                        .toLowerCase();
+            firstName = changeEnglish(firstName);
+            lastName = changeEnglish(lastName);
 
-                    lastName = lastName
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '')
-                        .toLowerCase();
+            let email = `${lastName}.${firstName}`; // hung.nguyen
 
-                    let email = `${lastName}.${firstName}`;
+            let firstEmail = [];
+            let check = false;
 
-                    let firstEmail = [];
-                    let check = false;
-
-                    array.forEach((item) => {
-                        if (String(item.email).includes(email)) {
-                            firstEmail.push(item.email.split('@')[0]);
-                            check = true;
-                        }
-                    });
-
-                    if (check) {
-                        // nếu email đã tồn tại thì thêm trị số
-                        firstEmail.sort();
-                        let number = String(firstEmail[firstEmail.length - 1]).match(/\d/g);
-
-                        if (number === null) {
-                            email = `${email}1@ntq-solution.com.vn`;
-                        } else {
-                            number =
-                                Number(
-                                    String(firstEmail[firstEmail.length - 1])
-                                        .match(/\d/g)
-                                        .join(''),
-                                ) + 1;
-                            email = `${email.concat(number)}@ntq-solution.com.vn`;
-                        }
-
-                        (dataAdd = {
-                            id: id,
-                            ...dataAdd,
-                            email: email,
-                        }),
-                            array.unshift(dataAdd);
-                        card.innerHTML = render(array);
-                    } else {
-                        email = `${email}@ntq-solution.com.vn`;
-                        (dataAdd = {
-                            id: id,
-                            ...dataAdd,
-                            email: email,
-                        }),
-                            array.unshift(dataAdd);
-                        card.innerHTML = render(array);
-                    }
+            array.forEach((item) => {
+                if (String(item.email).includes(email)) {
+                    firstEmail.push(item.email.split('@')[0]);
+                    check = true;
+                    console.log(check);
                 }
+            });
+
+            if (check) {
+                firstEmail.sort();
+                let number = String(firstEmail[firstEmail.length - 1]).match(/\d/g);
+
+                if (number === null) {
+                    email = `${email}1@ntq-solution.com.vn`;
+                } else {
+                    number =
+                        Number(
+                            String(firstEmail[firstEmail.length - 1])
+                                .match(/\d/g)
+                                .join(''),
+                        ) + 1;
+                    email = `${email.concat(number)}@ntq-solution.com.vn`;
+                }
+
+                (dataAdd = {
+                    id: id,
+                    name: Standardized(name__member.value).trim(),
+                    job: job__position.value,
+                    email: email,
+                }),
+                    array.unshift(dataAdd);
+                cutAndRender(array);
+            } else {
+                email = `${email}@ntq-solution.com.vn`;
+                (dataAdd = {
+                    id: id,
+                    name: Standardized(name__member.value).trim(),
+                    job: job__position.value,
+                    email: email,
+                }),
+                    array.unshift(dataAdd);
+                cutAndRender(array);
             }
         }
     });
 };
 
-handlerAdd(EMPLOYEES);
+handlerAdd(total, handlerID(total));

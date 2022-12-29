@@ -690,6 +690,24 @@ export const EMPLOYEES = [
         job: 'HR staff',
     },
     {
+        id: 5216,
+        name: 'Dương Xuân Hoàng',
+        email: 'hoang.duong1@reco-vn.com',
+        job: 'HR staff',
+    },
+    {
+        id: 5217,
+        name: 'Dương Thị Hồng',
+        email: 'hong.duong1@reco-vn.com',
+        job: 'HR staff',
+    },
+    {
+        id: 5218,
+        name: 'Dương Thi Dịu',
+        email: 'hong.duong1@reco-vn.com',
+        job: 'HR staff',
+    },
+    {
         id: 3738,
         name: 'Edatsune Isao',
         email: 'isao.edatsune@ntq-solution.com.vn',

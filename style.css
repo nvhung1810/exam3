@@ -215,7 +215,7 @@ body {
 .contact {
     width: 52px;
     display: flex;
-    align-items: center;
+    margin-top: 8px;
 }
 
 .avt {

@@ -12,6 +12,12 @@ export const EMPLOYEES = [
         job: 'Tester',
     },
     {
+        id: 4603,
+        name: 'Hưng',
+        email: 'hung@ntq-solution.com.vn',
+        job: 'Tester',
+    },
+    {
         id: 4886,
         name: 'Đặng Thị Ngọc',
         email: 'ngoc.dang1@ntq-solution.com.vn',

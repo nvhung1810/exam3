@@ -96,14 +96,14 @@ export const handleDataAdd = (data, id, fullName, job) => {
         data.forEach((item) => {
             if (String(item.email).includes(email)) {
                 if (item.email.split('@')[0].includes('.') === false) {
-                    console.log(123);
-                } else {
-                    console.log(321);
+                    number = Number(
+                        item.email.split('@')[0].replace(/[^0-9]/g, ''),
+                    );
+                    checkEmail.push(number);
+                    check = true;
                 }
             }
         });
-        // hung1@ntq-solution.com
-        // hung@ntq-solution.com
     } else {
         data.forEach((item) => {
             if (String(item.email).includes(email)) {

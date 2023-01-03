@@ -15,7 +15,7 @@ const card = document.querySelector('.card');
 const inputSearch = document.querySelector('.search__input');
 const btnNext = document.querySelector('.next');
 const btnPreview = document.querySelector('.preview');
-const page = document.querySelector('.nav__page--text');
+const pageDOM = document.querySelector('.nav__page--text');
 const select = document.querySelector('.select');
 const sort = document.querySelector('.sort');
 const btnSortAZ = document.querySelector('.atoZ');
@@ -66,11 +66,11 @@ const handlerNext = (array) => {
         count++;
         cutAndRender(array);
         if (count * y > array.length) {
-            page.innerHTML = `${array.length} - ${count * y - y + 1}/${
+            pageDOM.innerHTML = `${array.length} - ${count * y - y + 1}/${
                 array.length
             }`;
         } else {
-            page.innerHTML = `${count * y} - ${count * y - y + 1}/${
+            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
                 array.length
             }`;
         }
@@ -83,10 +83,34 @@ const handlerPreview = (array) => {
     if (count > 1) {
         count--;
         cutAndRender(array);
-        page.innerHTML = `${count * y} - ${count * y - y + 1}/${array.length}`;
+        pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
+            array.length
+        }`;
     } else {
         count = 1;
     }
+};
+
+const updateDOM = (data) => {
+    cutAndRender(data);
+
+    btnNext.onclick = function () {
+        handlerNext(data);
+    };
+
+    // PREVIEW MẢNG MỚI
+    btnPreview.onclick = function () {
+        handlerPreview(data);
+    };
+
+    // SORT THEO MẢNG MỚI
+    btnSortAZ.onclick = function () {
+        cutAndRender(handleSortAZ(data));
+    };
+
+    btnSortZA.onclick = function () {
+        cutAndRender(handleSortZA(data));
+    };
 };
 
 // SEARCH
@@ -115,7 +139,7 @@ const handlerFind = (api, keyword) => {
 window.onload = (event) => {
     updateDOM(dataAfterChange);
 
-    page.innerHTML = `${y} - ${count}/${dataAfterChange.length}`;
+    pageDOM.innerHTML = `${y} - ${count}/${dataAfterChange.length}`;
 };
 
 // ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
@@ -133,7 +157,7 @@ inputSearch.addEventListener('keydown', function (event) {
             // RENDER LẠI THEO MẢNG MỚI
 
             // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
-            page.innerHTML = `${count * y} - ${count * y - y + 1}/${
+            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
                 resultSearch.length
             }`;
 
@@ -164,20 +188,16 @@ const handleClickAdd = () => {
         message.innerHTML = 'Vui lòng nhập đầy đủ thông tin!';
     } else {
         count = 1;
-        dataAfterChange.unshift(
-            handleDataAdd(
-                dataAfterChange,
-                handlerID(dataAfterChange),
-                valueName,
-                valueJob,
-            ),
+        const newData = dataAfterChange;
+        newData.unshift(
+            handleDataAdd(newData, handlerID(newData), valueName, valueJob),
         );
 
         // resultDataAdd: MẢNG SAU KHI ADD THÀNH CÔNG VÀ THÊM DỮ LIỆU VÀO MẢNG GỐC
-        let resultDataAdd = [...dataAfterChange];
+        let resultDataAdd = [...newData];
 
         // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
-        page.innerHTML = `${count * y} - ${count * y - y + 1}/${
+        pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
             resultDataAdd.length
         }`;
 
@@ -188,25 +208,3 @@ const handleClickAdd = () => {
 };
 
 btnAdd.onclick = handleClickAdd;
-
-const updateDOM = (data) => {
-    cutAndRender(data);
-
-    btnNext.onclick = function () {
-        handlerNext(data);
-    };
-
-    // PREVIEW MẢNG MỚI
-    btnPreview.onclick = function () {
-        handlerPreview(data);
-    };
-
-    // SORT THEO MẢNG MỚI
-    btnSortAZ.onclick = function () {
-        cutAndRender(handleSortAZ(data));
-    };
-
-    btnSortZA.onclick = function () {
-        cutAndRender(handleSortZA(data));
-    };
-};

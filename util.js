@@ -1,5 +1,5 @@
 export const handleAvt = (fullName) => {
-    const lastName = fullName.split(' ').slice(-1).join(' ');
+    const lastName = fullName.trim().split(' ').slice(-1).join(' ');
     const avt = lastName.charAt(0);
 
     return avt;
@@ -135,9 +135,23 @@ export const handleChangeData = (data) => {
 };
 
 export const handleSortAZ = (data) => {
+    // CẮT THÀNH MẢNG CÓ NAME KO CÓ SỐ
+
     data.sort(function (a, b) {
-        var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
-        var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
+        let lastNameA = a.name
+            .trim()
+            .split(' ')
+            .slice(-1)
+            .join(' ')
+            .toUpperCase();
+        let lastNameB = b.name
+            .trim()
+            .split(' ')
+            .slice(-1)
+            .join(' ')
+            .toUpperCase();
+        // Nếu tên chữ cái cuối cùng là số
+        // Nếu chữ Là chữ kiểu tiếng việt
 
         if (lastNameA < lastNameB) {
             return -1;
@@ -152,8 +166,18 @@ export const handleSortAZ = (data) => {
 
 export const handleSortZA = (data) => {
     data.sort(function (a, b) {
-        var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
-        var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
+        let lastNameA = a.name
+            .trim()
+            .split(' ')
+            .slice(-1)
+            .join(' ')
+            .toUpperCase();
+        let lastNameB = b.name
+            .trim()
+            .split(' ')
+            .slice(-1)
+            .join(' ')
+            .toUpperCase();
 
         if (lastNameA < lastNameB) {
             return 1;

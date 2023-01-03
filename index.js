@@ -113,25 +113,9 @@ const handlerFind = (api, keyword) => {
 // ----------------------TRẠNG THÁI BAN ĐẦU KHI CHƯA TÌM KIẾM -------------
 
 window.onload = (event) => {
-    cutAndRender(dataAfterChange);
+    updateDOM(dataAfterChange);
 
     page.innerHTML = `${y} - ${count}/${dataAfterChange.length}`;
-
-    btnNext.onclick = function () {
-        handlerNext(dataAfterChange);
-    };
-
-    btnPreview.onclick = function () {
-        handlerPreview(dataAfterChange);
-    };
-
-    btnSortAZ.onclick = function () {
-        cutAndRender(handleSortAZ(dataAfterChange));
-    };
-
-    btnSortZA.onclick = function () {
-        cutAndRender(handleSortZA(dataAfterChange));
-    };
 };
 
 // ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
@@ -146,30 +130,17 @@ inputSearch.addEventListener('keydown', function (event) {
         if (valueInput !== '') {
             let resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
 
-            cutAndRender(resultSearch); // RENDER LẠI THEO MẢNG MỚI
+            // RENDER LẠI THEO MẢNG MỚI
 
             // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
             page.innerHTML = `${count * y} - ${count * y - y + 1}/${
                 resultSearch.length
             }`;
 
-            // NEXT THEO MẢNG MỚI
-            btnNext.onclick = function () {
-                handlerNext(resultSearch);
-            };
+            updateDOM(resultSearch);
 
-            // PREVIEW MẢNG MỚI
-            btnPreview.onclick = function () {
-                handlerPreview(resultSearch);
-            };
-
-            btnSortAZ.onclick = function () {
-                cutAndRender(handleSortAZ(resultSearch));
-            };
-
-            btnSortZA.onclick = function () {
-                cutAndRender(handleSortZA(resultSearch));
-            };
+            nameMember.value = '';
+            jobPosition.value = '';
         }
     }
 });
@@ -205,32 +176,37 @@ const handleClickAdd = () => {
         // resultDataAdd: MẢNG SAU KHI ADD THÀNH CÔNG VÀ THÊM DỮ LIỆU VÀO MẢNG GỐC
         let resultDataAdd = [...dataAfterChange];
 
-        cutAndRender(resultDataAdd); // RENDER LẠI THEO MẢNG MỚI
-
         // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
         page.innerHTML = `${count * y} - ${count * y - y + 1}/${
             resultDataAdd.length
         }`;
 
-        // NEXT THEO MẢNG MỚI
-        btnNext.onclick = function () {
-            handlerNext(resultDataAdd);
-        };
+        updateDOM(resultDataAdd);
 
-        // PREVIEW MẢNG MỚI
-        btnPreview.onclick = function () {
-            handlerPreview(resultDataAdd);
-        };
-
-        // SORT THEO MẢNG MỚI
-        btnSortAZ.onclick = function () {
-            cutAndRender(handleSortAZ(resultDataAdd));
-        };
-
-        btnSortZA.onclick = function () {
-            cutAndRender(handleSortZA(resultDataAdd));
-        };
+        inputSearch.value = '';
     }
 };
 
 btnAdd.onclick = handleClickAdd;
+
+const updateDOM = (data) => {
+    cutAndRender(data);
+
+    btnNext.onclick = function () {
+        handlerNext(data);
+    };
+
+    // PREVIEW MẢNG MỚI
+    btnPreview.onclick = function () {
+        handlerPreview(data);
+    };
+
+    // SORT THEO MẢNG MỚI
+    btnSortAZ.onclick = function () {
+        cutAndRender(handleSortAZ(data));
+    };
+
+    btnSortZA.onclick = function () {
+        cutAndRender(handleSortZA(data));
+    };
+};

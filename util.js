@@ -1,5 +1,5 @@
 export const handleAvt = (fullName) => {
-    const lastName = fullName.split(' ').slice(-1).join(' ');
+    const lastName = fullName.trim().split(' ').slice(-1).join(' ');
     const avt = lastName.charAt(0);
 
     return avt;
@@ -48,7 +48,6 @@ export const handleChangeNameToEmail = (fullName) => {
 
     firstName = changeEnglish(firstName);
     lastName = changeEnglish(lastName);
-
     let email;
 
     if (
@@ -59,12 +58,19 @@ export const handleChangeNameToEmail = (fullName) => {
     ) {
         firstName = firstName.toLowerCase().replace(/đ/g, 'd');
         lastName = lastName.toLowerCase().replace(/đ/g, 'd');
-        email = `${lastName}.${firstName}`;
-        console.log(email);
-    } else {
-        email = `${lastName}.${firstName}`;
-    }
 
+        if (firstName === lastName) {
+            email = `${lastName}`;
+        } else {
+            email = `${lastName}.${firstName}`;
+        }
+    } else {
+        if (firstName === lastName) {
+            email = `${lastName}`;
+        } else {
+            email = `${lastName}.${firstName}`;
+        }
+    }
     return email;
 };
 
@@ -82,15 +88,33 @@ export const handleDataAdd = (data, id, fullName, job) => {
         avt: handleAvt(fullName.trim()).toUpperCase(),
     };
 
-    data.forEach((item) => {
-        if (String(item.email).includes(email)) {
-            let number = Number(
-                item.email.split('@')[0].replace(/[^0-9]/g, ''),
-            );
-            checkEmail.push(number);
-            check = true;
-        }
-    });
+    let number;
+
+    if (email.includes('.') === false) {
+        // Lấy trước @
+        // if trước @ có . thì bỏ nếu ko có thì lấy
+        data.forEach((item) => {
+            if (String(item.email).includes(email)) {
+                if (item.email.split('@')[0].includes('.') === false) {
+                    console.log(123);
+                } else {
+                    console.log(321);
+                }
+            }
+        });
+        // hung1@ntq-solution.com
+        // hung@ntq-solution.com
+    } else {
+        data.forEach((item) => {
+            if (String(item.email).includes(email)) {
+                number = Number(
+                    item.email.split('@')[0].replace(/[^0-9]/g, ''),
+                );
+                checkEmail.push(number);
+                check = true;
+            }
+        });
+    }
 
     let maxValue = Math.max(...checkEmail);
 
@@ -135,33 +159,17 @@ export const handleChangeData = (data) => {
 };
 
 export const handleSortAZ = (data) => {
-    data.sort(function (a, b) {
-        var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
-        var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
-
-        if (lastNameA < lastNameB) {
-            return -1;
-        }
-        if (lastNameA > lastNameB) {
-            return 1;
-        }
-        return 0;
+    const newData = data;
+    newData.sort((a, b) => {
+        return a['avt'].toString().localeCompare(b['avt']);
     });
-    return data;
+    return newData;
 };
 
 export const handleSortZA = (data) => {
-    data.sort(function (a, b) {
-        var lastNameA = a.name.split(' ').slice(-1).join(' ').toUpperCase();
-        var lastNameB = b.name.split(' ').slice(-1).join(' ').toUpperCase();
-
-        if (lastNameA < lastNameB) {
-            return 1;
-        }
-        if (lastNameA > lastNameB) {
-            return -1;
-        }
-        return 0;
+    const newData = data;
+    newData.sort((a, b) => {
+        return a['avt'].toString().localeCompare(b['avt']);
     });
-    return data;
+    return newData.reverse();
 };

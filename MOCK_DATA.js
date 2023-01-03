@@ -468,9 +468,21 @@ export const EMPLOYEES = [
         job: 'Recruiter Executive',
     },
     {
+        id: 4635,
+        name: 'Đỗ Thị Dung',
+        email: 'dung.do1@ntq-solution.com.vn',
+        job: 'Manager',
+    },
+    {
+        id: 4636,
+        name: 'Đỗ Thị Thiên Ân',
+        email: 'an.do@ntq-solution.com.vn',
+        job: 'Manager',
+    },
+    {
         id: 4634,
         name: 'Đỗ Thị Dung 1',
-        email: 'dung.do1@ntq-solution.com.vn',
+        email: 'dung.do2@ntq-solution.com.vn',
         job: 'Manager',
     },
     {

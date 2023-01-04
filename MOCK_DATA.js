@@ -13,8 +13,8 @@ export const EMPLOYEES = [
     },
     {
         id: 4603,
-        name: 'Hưng',
-        email: 'hung@ntq-solution.com.vn',
+        name: 'Nguyễn Thu Hà',
+        email: 'ha.nguyen@ntq-solution.com.vn',
         job: 'Tester',
     },
     {
@@ -55,6 +55,12 @@ export const EMPLOYEES = [
     },
     {
         id: 3168,
+        name: 'Đặng Văn Nam',
+        email: 'nam.dang@ntq-solution.com.vn',
+        job: 'PM',
+    },
+    {
+        id: 3169,
         name: 'Đặng Văn Nam',
         email: 'nam.dang@ntq-solution.com.vn',
         job: 'PM',

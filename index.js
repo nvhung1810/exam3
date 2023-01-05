@@ -1,128 +1,136 @@
 import { EMPLOYEES } from './MOCK_DATA.js';
 import {
-    cutPage,
+    render,
+    changeDataAdd,
     handlerID,
     handleDataAdd,
     handleChangeData,
     handleSortAZ,
     handleSortZA,
+    changeEnglish,
 } from './util.js';
 
 const total = EMPLOYEES;
-// B1:
+
 const card = document.querySelector('.card');
 const inputSearch = document.querySelector('.search__input');
 const btnNext = document.querySelector('.next');
 const btnPreview = document.querySelector('.preview');
 const pageDOM = document.querySelector('.nav__page--text');
-const select = document.querySelector('.select');
-const sort = document.querySelector('.sort');
 const btnSortAZ = document.querySelector('.atoZ');
 const btnSortZA = document.querySelector('.ztoA');
 const nameMember = document.querySelector('.name__member');
 const jobPosition = document.querySelector('.job__position');
 const btnAdd = document.querySelector('.add__btn');
 const message = document.querySelector('.message');
+const recordBtn = document.querySelector('.record__btn');
+const recordSelect = document.querySelector('.record');
 
-let count = 1;
-let y = 21;
+let page = 1;
+let perPage = 20; // giá trị mặc định
 
-const render = (api) => {
-    const renderResult = api
-        .map((element) => {
-            return `
-            <li class="wrap">
-                <div class="contact">
-                    <div class="avt">${element.avt}</div>
-                </div>
-                <div class="infomation">
-                    <div class="infomation__name">${element.name}</div>
-                    <div class="infomation__job">${element.job}</div>
-                    <div class="email">
-                        <i class="fa-solid fa-envelope icon--small"></i>
-                        <i class="email__text">${element.email}</i>
-                    </div>
-                </div>
-                <button class="btn">Follow</button>
-            </li>
-            `;
-        })
-        .join('');
-    return renderResult;
-};
+// CẮT TRANG THEO YÊU CẦU
+const cutPage = (listData, page, perPage) => {
+    return {
+        total: listData.length,
+        currentPage: page,
+        records: listData.slice(
+            (page - 1) * perPage,
+            (page - 1) * perPage + perPage,
+        ),
+    };
+}; // => OK
 
-const dataAfterChange = handleChangeData(total);
+// CUT TRANG VÀ RENDER LẠI
+// const cutAndRender = (data) => {
+//     let resultRender = [...cutPage(data, page, record)];
+//     card.innerHTML = render(resultRender);
+//     return resultRender;
+// };
 
-const cutAndRender = (data) => {
-    let resultRender = [...cutPage(data, count, y)];
-    card.innerHTML = render(resultRender);
-    return resultRender;
-};
-
-// NEXT AND PREVIEW PAGE
-const handlerNext = (array) => {
-    if (count < Math.ceil(array.length / y)) {
-        count++;
-        cutAndRender(array);
-        if (count * y > array.length) {
-            pageDOM.innerHTML = `${array.length} - ${count * y - y + 1}/${
-                array.length
-            }`;
+// XỬ LÝ NEXT: VỚI NEXT VÀ PREVIEW KHÔNG TRUYỀN BIẾN PAGE
+const handleNext = (listData, perPage) => {
+    if (page < Math.ceil(listData.length / perPage)) {
+        page++;
+        if (page * perPage > listData.length) {
+            pageDOM.innerHTML = `${listData.length} - ${
+                page * perPage - perPage + 1
+            }/${listData.length}`;
         } else {
-            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-                array.length
-            }`;
+            pageDOM.innerHTML = `${page * perPage} - ${
+                page * perPage - perPage + 1
+            }/${listData.length}`;
         }
     } else {
-        count = Math.ceil(array.length / y);
+        page = Math.ceil(listData.length / perPage);
     }
+    return cutPage(listData, page, perPage);
 };
 
-const handlerPreview = (array) => {
-    if (count > 1) {
-        count--;
-        cutAndRender(array);
-        pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-            array.length
-        }`;
+// XỬ LÝ LÙI
+const handlePreview = (listData, perPage) => {
+    if (page > 1) {
+        page--;
+        pageDOM.innerHTML = `${page * perPage} - ${
+            page * perPage - perPage + 1
+        }/${(listData, listData.length)}`;
     } else {
-        count = 1;
+        page = 1;
     }
+    return cutPage(listData, page, perPage);
 };
 
-const updateDOM = (data) => {
-    cutAndRender(data);
+// XỬ LÝ RECORD
+const handleRecord = () => {
+    perPage = recordSelect.value;
+    return perPage;
+}; // Khi record thì perPage sẽ được cập nhật
 
-    btnNext.onclick = function () {
-        handlerNext(data);
-    };
-
-    // PREVIEW MẢNG MỚI
-    btnPreview.onclick = function () {
-        handlerPreview(data);
-    };
-
-    // SORT THEO MẢNG MỚI
-    btnSortAZ.onclick = function () {
-        cutAndRender(handleSortAZ(data));
-    };
-
-    btnSortZA.onclick = function () {
-        cutAndRender(handleSortZA(data));
-    };
+// RENDER
+const renderHTML = (listData) => {
+    card.innerHTML = render(listData);
 };
 
-// SEARCH
-const handlerFind = (api, keyword) => {
+// CẬP NHẬT LẠI TRANG WEB
+const updateDOM = (listData, perPage) => {
+    // DEFAULT
+    renderHTML(cutPage(listData, page, perPage).records);
+    // NEXT
+    btnNext.onclick = (e) => {
+        e.preventDefault();
+        const records = handleNext(listData, perPage).records;
+        renderHTML(records);
+    };
+    // PREVIEW
+    btnPreview.onclick = (e) => {
+        e.preventDefault();
+        const record = handlePreview(listData, perPage).records;
+        renderHTML(record);
+    };
+    // SORT AZ
+    btnSortAZ.onclick = (e) => {
+        e.preventDefault();
+        cutAndRender(handleSortAZ(listData));
+    };
+    // SORT ZA
+    btnSortZA.onclick = (e) => {
+        e.preventDefault();
+        cutAndRender(handleSortZA(listData));
+    };
+};
+// XỬ LÝ TÌM KIẾM
+const handlerFind = (listData, keyword) => {
     let resultSearch = [];
-    console.log(keyword);
-
-    api.forEach((value) => {
+    listData.forEach((value) => {
         const fullName = String(value.name).replace(/\s+/g, '').toLowerCase();
+        const fullNameWithoutAccents = changeEnglish(fullName);
         const email = String(value.email).replace(/\s+/g, '').toLowerCase();
         const job = String(value.job).replace(/\s+/g, '').toLowerCase();
-
         if (fullName.indexOf(keyword) > -1) {
+            resultSearch.push(value);
+        } else if (
+            fullNameWithoutAccents.indexOf(changeEnglish(keyword)) > -1
+        ) {
             resultSearch.push(value);
         } else if (email.indexOf(keyword) > -1) {
             resultSearch.push(value);
@@ -133,77 +141,44 @@ const handlerFind = (api, keyword) => {
     return resultSearch;
 };
 
-// ----------------------TRẠNG THÁI BAN ĐẦU KHI CHƯA TÌM KIẾM -------------
-window.onload = (event) => {
-    updateDOM(dataAfterChange);
-
-    pageDOM.innerHTML = `${y} - ${count}/${dataAfterChange.length}`;
-};
-
-// ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
-inputSearch.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        count = 1;
-        event.preventDefault();
-        let valueInput = inputSearch.value.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
-        if (valueInput !== '') {
-            let resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
-            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-                resultSearch.length
-            }`;
-            updateDOM(resultSearch);
-            nameMember.value = '';
-            jobPosition.value = '';
-        }
-    }
-});
-
-// SAP XEP
-select.addEventListener('click', handlerToggle);
-
-function handlerToggle() {
-    sort.classList.toggle('active');
+function debounce(callBack, delay = 700) {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            callBack(...args);
+        }, delay);
+    };
 }
 
-// SORT A-Z, Z-A
+// MẶC ĐỊNH KHI CHẠY LÊN
+window.onload = () => {
+    const dataAfterChange = handleChangeData(total);
+    updateDOM(dataAfterChange, perPage);
+    pageDOM.innerHTML = `${perPage} - ${page}/${dataAfterChange.length}`;
 
-// ----------------------THÊM NHÂN VIÊN MỚI ----------------------
-
-const handleClickAdd = () => {
-    let valueName = nameMember.value;
-    let valueJob = jobPosition.value;
-    if (
-        valueName.replace(/\s+/g, '') === '' ||
-        valueJob.replace(/\s+/g, '') === ''
-    ) {
-        message.innerHTML =
-            'Giá trị nhập không hợp lệ hoặc điền thiếu thông tin!';
-    } else {
-        message.innerHTML = '';
-        count = 1;
-        const listData = dataAfterChange;
-
-        listData.unshift(
-            handleDataAdd(listData, handlerID(listData), valueName, valueJob),
-        );
-
-        // resultDataAdd: MẢNG SAU KHI ADD THÀNH CÔNG VÀ THÊM DỮ LIỆU VÀO MẢNG GỐC
-        let resultDataAdd = [...listData];
-
-        try {
-            updateDOM(resultDataAdd);
-            // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
-            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-                resultDataAdd.length
-            }`;
-
+    // TÌM KIẾM TRẢ VỀ DỮ LIỆU
+    const updateDebounceSearch = debounce((enteredData) => {
+        const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
+        if (valueInput !== '') {
+            const resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
+            updateDOM(resultSearch, perPage);
             nameMember.value = '';
             jobPosition.value = '';
-            inputSearch.value = '';
-        } catch (err) {
-            console.error('>>>>> Error add data');
         }
-    }
-};
+    });
 
-btnAdd.onclick = handleClickAdd;
+    inputSearch.addEventListener('keyup', (e) => {
+        updateDebounceSearch(e.target.value);
+    });
+
+    btnAdd.onclick = (e) => {
+        e.preventDefault();
+        const valueName = nameMember.value;
+        const valueJob = jobPosition.value;
+        updateDOM(
+            changeDataAdd(dataAfterChange, valueName, valueJob, message),
+            perPage,
+        );
+    };
+};

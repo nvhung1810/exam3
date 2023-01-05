@@ -27,7 +27,7 @@
         <div class="content">
             <div class="action">
                 <div class="search">
-                    <input type = "text" onkeyup="processChange()" class="search__input"></input>
+                    <input type = "text"  class="search__input"></input>
                 </div>
                 <div class="add">
                     <input type="text" placeholder="Tên nhân viên" class="add__input name__member">
@@ -39,6 +39,22 @@
 
                 <div class="message" style="margin-left: 16px; color: red"></div>
                 <div class="toolbar">
+                    <!-- RECORD -->
+                    <form style="margin-bottom: 0;
+                    display: flex;
+                    height: 29px;
+                    position: relative;
+                    top: 4px;">
+                        <select class="record">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="40">40</option>
+                            <option value="80">80</option>
+                        </select>
+                        <button class="record__btn">Record</button>
+                    </form>
+                    <!-- SORT -->
                     <div class="nav__page hav--boder">
                         <div class="select">
                             <i class="fa-solid fa-bars select__icon"></i>
@@ -51,7 +67,8 @@
                             </div>
                             <i class="fa-solid fa-chevron-down"></i>
                         </div>
-                    </div>  
+                    </div>
+                    <!-- NEXT & PREVIEW  -->
                     <div class="nav__page">
                         <div class="nav__page--text"></div>
                         <button class="nav__page--btn preview">
@@ -70,5 +87,6 @@
         </div>
     </div>
     <script type="module" src="./index.js"></script>
+    <script type="module" src="./action.js"></script>
 </body>
 </html>

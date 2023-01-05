@@ -71,7 +71,7 @@ export const changeEnglish = (a) => {
 };
 // CHUẨN HÓA: nguyễn văn hưng => Nguyễn Văn Hưng
 export const Standardized = (value) => {
-    value = value.replace(/\s/g, ' ');
+    value = value.replace(/\s+/g, ' ');
     value = value.trim().toLowerCase();
     let separated = value.split(' '); // mảng chứa tên, họ, tên đệm
     let result = '';
@@ -120,13 +120,6 @@ export const handleSortAZ = (data) => {
     newData.sort((a, b) => {
         return a['avt'].toString().localeCompare(b['avt']);
     });
-    // Đỗ Minh Anh (Đỗ Minh Anh 0) ==> Lấy ra vị trí của cái thằng có con số nhỏ nhất thằng này
-    // Đỗ Minh Anh 1. ==> Nếu tồn tại thằng này thì cho nó sau cái Đỗ Minh Anh
-    // Đỗ Minh Anh 2. ==> Nếu tồn tại thằng này thì cho nó sau cái Đỗ Minh Anh 1
-
-    // Điểm chung: --> Đỗ Minh Anh
-    // Điểm khác: số đằng sau
-
     return newData;
 };
 // SORT ZA
@@ -139,96 +132,95 @@ export const handleSortZA = (data) => {
 };
 
 const removeWhitespace = (value) => {
-    return value.replace(/\s+/g, '').toLowerCase();
+    return value.replace(/\s+/g, ' ').toLowerCase();
 };
 
 const getNumberInText = (value) => {
-    return value.replace(/[^0-9]/g, '');
+    return Number(value.replace(/[^0-9]/g, ''));
 };
 
-const getMaxNumberInString = (value, keyCheck) => {
-    const number = [];
-    value.forEach((item) => {
+// NẾU NHƯ TÊN ĐÃ CÓ TRONG API -> [0,1....] NẾU KHÔNG CÓ -> []
+const getMaxNumberInName = (list, keyCheck) => {
+    const listNumber = [];
+
+    list.forEach((item) => {
         const fullNameData = removeWhitespace(item.name);
-        if (fullNameData.includes(keyCheck)) {
-            const numberOfName = getMaxNumberInString(fullNameData); // lấy số trong tên: nguyễn văn hưng 1 --> 1
-            if (numberOfName === '') {
-                numberOfName = 0;
+
+        if (String(fullNameData).includes(keyCheck)) {
+            if (keyCheck.includes(' ')) {
+                const numberOfName = getNumberInText(fullNameData); // lấy số trong tên: nguyễn văn hưng 1 --> 1
+                listNumber.push(numberOfName);
             } else {
-                numberOfName = numberOfName;
+                const fullNameCut = fullNameData
+                    .replace(fullNameData.replace(/[^0-9]/g, ''), '')
+                    .trim();
+                if (fullNameCut === keyCheck) {
+                    const numberOfName = getNumberInText(fullNameData);
+                    listNumber.push(numberOfName);
+                }
             }
-            number.push(numberOfName);
         }
     });
-    return number;
+    return listNumber;
+};
+
+const handleNumericValueName = (listNumber, fullName) => {
+    let newName;
+    if (listNumber.length === 0) {
+        newName = Standardized(fullName);
+    } else {
+        newName = `${Standardized(fullName)}${Math.max(...listNumber) + 1}`;
+    }
+
+    return newName;
+};
+
+const getMaxNumberInEmail = (list, keyCheck) => {
+    let numberList = [];
+    list.forEach((item) => {
+        const nameEmail = String(item.email).split('@')[0];
+
+        if (nameEmail.includes(keyCheck)) {
+            if (keyCheck.includes('.')) {
+                numberList.push(getNumberInText(nameEmail.split('@')[0]));
+            } else {
+                if (String(nameEmail).includes('.') === false) {
+                    numberList.push(getNumberInText(nameEmail.split('@')[0]));
+                }
+            }
+        }
+    });
+    return numberList;
+};
+
+const handleNumericValueEmail = (listNumber, email) => {
+    let newEmail;
+    if (listNumber.length === 0) {
+        newEmail = `${email}@ntq-solution.com.vn`;
+    } else {
+        newEmail = `${email}${Math.max(...listNumber) + 1}@ntq-solution.com.vn`;
+    }
+    return newEmail;
 };
 
 // XỬ LÝ THÊM DỮ LIỆU
 export const handleDataAdd = (listData, id, fullName, job) => {
-    let email = handleChangeNameToEmail(fullName); // LẤY RA EMAIL
+    const email = handleChangeNameToEmail(fullName); // LẤY RA EMAIL
     const fullNameCheck = removeWhitespace(fullName); // nguyễnvănhưng
 
-    let number;
-    let check = false;
-    let dataAdd = {
+    const maxNumberName = getMaxNumberInName(listData, fullNameCheck);
+    const maxNumberEmail = getMaxNumberInEmail(listData, email);
+
+    const newFullName = handleNumericValueName(maxNumberName, fullName);
+    const newEmail = handleNumericValueEmail(maxNumberEmail, email);
+
+    return {
         id: id + 1,
-        name: '',
+        name: newFullName,
+        email: newEmail,
         job: Standardized(job).trim(),
-        email: '',
-        avt: handleAvt(fullName.trim()).toUpperCase(),
+        avt: handleAvt(newFullName.trim()).toUpperCase(),
     };
-
-    // CHECK TRÙNG TÊN THÌ THÊM TRỊ SỐ VÀO ĐẰNG SAU.
-    if (email.includes('.') === false) {
-        listData.forEach((item) => {
-            if (String(item.email).includes(email)) {
-                if (item.email.split('@')[0].includes('.') === false) {
-                    number = Number(
-                        item.email.split('@')[0].replace(/[^0-9]/g, ''),
-                    );
-                    checkEmail.push(number);
-                    check = true;
-                }
-            }
-        });
-    } else {
-        listData.forEach((item) => {
-            if (String(item.email).includes(email)) {
-                number = Number(
-                    item.email.split('@')[0].replace(/[^0-9]/g, ''),
-                );
-                checkEmail.push(number);
-                check = true;
-            }
-        });
-    }
-
-    let maxValueEmail = Math.max(...checkEmail);
-    let maxValueName = Math.max(...checkFullName);
-
-    if (check) {
-        if (maxValueEmail === 0) {
-            email = `${email}1@ntq-solution.com.vn`;
-        } else {
-            maxValueEmail = maxValueEmail + 1;
-            email = `${email}${maxValueEmail}@ntq-solution.com.vn`;
-        }
-
-        if (maxValueName === 0) {
-            // 0 => fullName: nguyễn văn hưng
-            fullName = Standardized(`${fullName}`);
-        } else {
-            maxValueName = maxValueName + 1;
-            fullName = Standardized(`${fullName} ${maxValueName}`);
-        }
-
-        dataAdd.name = fullName;
-        dataAdd.email = email;
-    } else {
-        email = `${email}@ntq-solution.com.vn`;
-        dataAdd.email = email;
-    }
-    return dataAdd;
 };
 
 // THÊM DỮ LIỆU

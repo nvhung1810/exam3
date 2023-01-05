@@ -118,6 +118,7 @@ const updateDOM = (listData, perPage) => {
         cutAndRender(handleSortZA(listData));
     };
 };
+
 // XỬ LÝ TÌM KIẾM
 const handlerFind = (listData, keyword) => {
     let resultSearch = [];
@@ -162,7 +163,15 @@ window.onload = () => {
         const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
         if (valueInput !== '') {
             const resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
+
             updateDOM(resultSearch, perPage);
+
+            // recordBtn.onclick = (e) => {
+            //     e.preventDefault();
+            //     const recordValue = handleRecord();
+            //     updateDOM(resultSearch, recordValue);
+            // };
+
             nameMember.value = '';
             jobPosition.value = '';
         }

@@ -115,18 +115,18 @@ const updateDOM = (data) => {
 // SEARCH
 const handlerFind = (api, keyword) => {
     let resultSearch = [];
+    console.log(keyword);
 
     api.forEach((value) => {
-        if (value.name.toLowerCase().indexOf(keyword.toLowerCase()) > -1) {
+        const fullName = String(value.name).replace(/\s+/g, '').toLowerCase();
+        const email = String(value.email).replace(/\s+/g, '').toLowerCase();
+        const job = String(value.job).replace(/\s+/g, '').toLowerCase();
+
+        if (fullName.indexOf(keyword) > -1) {
             resultSearch.push(value);
-        } else if (
-            String(value.email).toLowerCase().indexOf(keyword.toLowerCase()) >
-            -1
-        ) {
+        } else if (email.indexOf(keyword) > -1) {
             resultSearch.push(value);
-        } else if (
-            String(value.job).toLowerCase().indexOf(keyword.toLowerCase()) > -1
-        ) {
+        } else if (job.indexOf(keyword) > -1) {
             resultSearch.push(value);
         }
     });
@@ -134,7 +134,6 @@ const handlerFind = (api, keyword) => {
 };
 
 // ----------------------TRẠNG THÁI BAN ĐẦU KHI CHƯA TÌM KIẾM -------------
-
 window.onload = (event) => {
     updateDOM(dataAfterChange);
 
@@ -142,51 +141,22 @@ window.onload = (event) => {
 };
 
 // ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
-// function debounce(func, timeout = 1000) {
-//     let timer;
-//     return (...args) => {
-//         clearTimeout(timer);
-//         timer = setTimeout(() => {
-//             func.apply(this, args);
-//         }, timeout);
-//     };
-// }
-function saveInput() {
-    // const inputDOM = document.querySelector('.inputClass');
-    // const x = inputDOM.value;
-    // console.log(x);
-    console.log(123);
-}
-
-inputSearch.addEventListener('keyup', processChange);
-const processChange = () => {
-    console.log(123);
-};
-
-// inputSearch.addEventListener('keydown', function (event) {
-//     if (event.key === 'Enter') {
-//         count = 1;
-
-//         event.preventDefault();
-//         let valueInput = inputSearch.value.trim(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
-
-//         if (valueInput !== '') {
-//             let resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
-
-//             // RENDER LẠI THEO MẢNG MỚI
-
-//             // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
-//             pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-//                 resultSearch.length
-//             }`;
-
-//             updateDOM(resultSearch);
-
-//             nameMember.value = '';
-//             jobPosition.value = '';
-//         }
-//     }
-// });
+inputSearch.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        count = 1;
+        event.preventDefault();
+        let valueInput = inputSearch.value.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
+        if (valueInput !== '') {
+            let resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
+            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
+                resultSearch.length
+            }`;
+            updateDOM(resultSearch);
+            nameMember.value = '';
+            jobPosition.value = '';
+        }
+    }
+});
 
 // SAP XEP
 select.addEventListener('click', handlerToggle);
@@ -202,27 +172,37 @@ function handlerToggle() {
 const handleClickAdd = () => {
     let valueName = nameMember.value;
     let valueJob = jobPosition.value;
-
-    if (String(valueName) === '' || String(valueJob) === '') {
-        message.innerHTML = 'Vui lòng nhập đầy đủ thông tin!';
+    if (
+        valueName.replace(/\s+/g, '') === '' ||
+        valueJob.replace(/\s+/g, '') === ''
+    ) {
+        message.innerHTML =
+            'Giá trị nhập không hợp lệ hoặc điền thiếu thông tin!';
     } else {
+        message.innerHTML = '';
         count = 1;
-        const newData = dataAfterChange;
-        newData.unshift(
-            handleDataAdd(newData, handlerID(newData), valueName, valueJob),
+        const listData = dataAfterChange;
+
+        listData.unshift(
+            handleDataAdd(listData, handlerID(listData), valueName, valueJob),
         );
 
         // resultDataAdd: MẢNG SAU KHI ADD THÀNH CÔNG VÀ THÊM DỮ LIỆU VÀO MẢNG GỐC
-        let resultDataAdd = [...newData];
+        let resultDataAdd = [...listData];
 
-        // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
-        pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-            resultDataAdd.length
-        }`;
+        try {
+            updateDOM(resultDataAdd);
+            // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
+            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
+                resultDataAdd.length
+            }`;
 
-        updateDOM(resultDataAdd);
-
-        inputSearch.value = '';
+            nameMember.value = '';
+            jobPosition.value = '';
+            inputSearch.value = '';
+        } catch (err) {
+            console.error('>>>>> Error add data');
+        }
     }
 };
 

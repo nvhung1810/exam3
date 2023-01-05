@@ -76,23 +76,29 @@ export const handleChangeNameToEmail = (fullName) => {
 
 export const handleDataAdd = (data, id, fullName, job) => {
     let email = handleChangeNameToEmail(fullName); // LẤY RA EMAIL
-
     let checkEmail = []; // LƯU CÁC EMAIL TRÙNG VỚI DL NHẬP VÀO MÀ ĐÃ TỒN TẠI
     let check = false;
-
     let dataAdd = {
         id: id + 1,
         name: Standardized(fullName).trim(),
-        job: job,
+        job: Standardized(job).trim(),
         email: '',
         avt: handleAvt(fullName.trim()).toUpperCase(),
     };
 
     let number;
 
+    data.forEach((item) => {
+        fullName = fullName.replace(/\s+/g, '').toLowerCase();
+        const fullNameData = item.name.replace(/\s+/g, '').toLowerCase();
+        if (fullNameData.includes(fullName)) {
+            console.log(fullNameData);
+        }
+    });
+
+    // if (fullName === '')
+
     if (email.includes('.') === false) {
-        // Lấy trước @
-        // if trước @ có . thì bỏ nếu ko có thì lấy
         data.forEach((item) => {
             if (String(item.email).includes(email)) {
                 if (item.email.split('@')[0].includes('.') === false) {

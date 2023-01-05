@@ -1,6 +1,5 @@
 import { EMPLOYEES } from './MOCK_DATA.js';
 import {
-    handleAvt,
     cutPage,
     handlerID,
     handleDataAdd,
@@ -143,31 +142,51 @@ window.onload = (event) => {
 };
 
 // ---------------------TRẠNG THÁI KHI ĐÃ TÌM KIẾM ĐƯỢC DỮ LIỆU -------------
+// function debounce(func, timeout = 1000) {
+//     let timer;
+//     return (...args) => {
+//         clearTimeout(timer);
+//         timer = setTimeout(() => {
+//             func.apply(this, args);
+//         }, timeout);
+//     };
+// }
+function saveInput() {
+    // const inputDOM = document.querySelector('.inputClass');
+    // const x = inputDOM.value;
+    // console.log(x);
+    console.log(123);
+}
 
-inputSearch.addEventListener('keydown', function (event) {
-    if (event.key === 'Enter') {
-        count = 1;
+inputSearch.addEventListener('keyup', processChange);
+const processChange = () => {
+    console.log(123);
+};
 
-        event.preventDefault();
-        let valueInput = inputSearch.value.trim(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
+// inputSearch.addEventListener('keydown', function (event) {
+//     if (event.key === 'Enter') {
+//         count = 1;
 
-        if (valueInput !== '') {
-            let resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
+//         event.preventDefault();
+//         let valueInput = inputSearch.value.trim(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
 
-            // RENDER LẠI THEO MẢNG MỚI
+//         if (valueInput !== '') {
+//             let resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
 
-            // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
-            pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
-                resultSearch.length
-            }`;
+//             // RENDER LẠI THEO MẢNG MỚI
 
-            updateDOM(resultSearch);
+//             // CẬP NHẬT LẠI SỐ TRANG THEO MẢNG MỚI
+//             pageDOM.innerHTML = `${count * y} - ${count * y - y + 1}/${
+//                 resultSearch.length
+//             }`;
 
-            nameMember.value = '';
-            jobPosition.value = '';
-        }
-    }
-});
+//             updateDOM(resultSearch);
+
+//             nameMember.value = '';
+//             jobPosition.value = '';
+//         }
+//     }
+// });
 
 // SAP XEP
 select.addEventListener('click', handlerToggle);

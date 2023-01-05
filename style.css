@@ -227,3 +227,9 @@ body {
     line-height: 52px;
     border-radius: 2px;
 }
+
+@media (max-width: 63.9375em) {
+    .wrap {
+        flex: calc(100% / 1);
+    }
+}

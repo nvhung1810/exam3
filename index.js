@@ -18,11 +18,10 @@ const btnPreview = document.querySelector('.preview');
 const pageDOM = document.querySelector('.nav__page--text');
 const btnSortAZ = document.querySelector('.atoZ');
 const btnSortZA = document.querySelector('.ztoA');
-const nameMember = document.querySelector('.name__member');
-const jobPosition = document.querySelector('.job__position');
+export const nameMember = document.querySelector('.name__member');
+export const jobPosition = document.querySelector('.job__position');
 const btnAdd = document.querySelector('.add__btn');
 const message = document.querySelector('.message');
-const recordBtn = document.querySelector('.record__btn');
 const recordSelect = document.querySelector('.record');
 
 let page = 1;
@@ -41,8 +40,8 @@ const cutPage = (listData, page, perPage) => {
 
 // XỬ LÝ NEXT: VỚI NEXT VÀ PREVIEW KHÔNG TRUYỀN BIẾN PAGE
 const handleNext = (listData, perPage) => {
+    page++;
     if (page < Math.ceil(listData.length / perPage)) {
-        page++;
         if (page * perPage > listData.length) {
             pageDOM.innerHTML = `${listData.length} - ${
                 page * perPage - perPage + 1
@@ -52,21 +51,26 @@ const handleNext = (listData, perPage) => {
                 page * perPage - perPage + 1
             }/${listData.length}`;
         }
+        btnPreview.disabled = false;
     } else {
         page = Math.ceil(listData.length / perPage);
+        btnNext.disabled = true;
     }
     return cutPage(listData, page, perPage);
 };
 
 // XỬ LÝ PREVIEW
 const handlePreview = (listData, perPage) => {
+    page--;
+
     if (page > 1) {
-        page--;
         pageDOM.innerHTML = `${page * perPage} - ${
             page * perPage - perPage + 1
         }/${(listData, listData.length)}`;
+        btnNext.disabled = false;
     } else {
         page = 1;
+        btnPreview.disabled = true;
     }
     return cutPage(listData, page, perPage);
 };
@@ -108,33 +112,32 @@ const updateDOM = (listData, perPage) => {
 const App = () => {
     const dataAfterChange = handleChangeData(total);
     let perPage = 20;
-
-    // -------------------------------------------
-    updateDOM(dataAfterChange, perPage);
-    // -------------------------------------------
+    // ---------------------SEARCH----------------------
+    const updateDebounceSearch = debounce((enteredData, perPage) => {
+        page = 1;
+        const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
+        if (valueInput !== '') {
+            const resultSearch = handlerFind(dataAfterChange, valueInput);
+            console.log(resultSearch.length);
+            if (resultSearch.length !== 0) {
+                updateDOM(resultSearch, perPage);
+                pageDOM.innerHTML = `${perPage} - ${page}/${resultSearch.length}`;
+            } else {
+                alert('Input data is empty!');
+            }
+        }
+        nameMember.value = '';
+        jobPosition.value = '';
+    });
     const onClickSearch = (perPage) => {
         inputSearch.addEventListener('keyup', (e) => {
             updateDebounceSearch(e.target.value, perPage);
         });
     };
-    const updateDebounceSearch = debounce((enteredData, perPage) => {
-        page = 1;
-        const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
-        if (valueInput !== '') {
-            console.log(perPage);
-            const resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
-            // -------------------------------------------
-            updateDOM(resultSearch, perPage);
-            // -------------------------------------------
-            nameMember.value = '';
-            jobPosition.value = '';
-        }
-    });
-
-    onClickSearch(perPage);
-    // -------------------------------------------
+    // ---------------------ADD--------------------------
     const onClickAdd = (perPage) => {
         btnAdd.onclick = (e) => {
+            page = 1;
             e.preventDefault();
             console.log(perPage);
             const valueName = nameMember.value;
@@ -144,12 +147,11 @@ const App = () => {
                 changeDataAdd(dataAfterChange, valueName, valueJob, message),
                 perPage,
             );
+            pageDOM.innerHTML = `${perPage} - ${page}/${resultSearch.length}`;
             // -------------------------------------------
         };
     };
-
-    onClickAdd(perPage);
-
+    // ---------------------RECORD--------------------------
     recordSelect.onchange = () => {
         const perPageChange = Number(recordSelect.value);
 
@@ -157,6 +159,15 @@ const App = () => {
         onClickSearch(perPageChange);
         onClickAdd(perPageChange);
     };
+    // ---------------------DEFAULT----------------------
+    const onLoadDefault = (listData, perPage) => {
+        updateDOM(listData, perPage);
+        onClickSearch(perPage);
+        onClickAdd(perPage);
+        pageDOM.innerHTML = `${perPage} - ${page}/${dataAfterChange.length}`;
+    };
+    onLoadDefault(dataAfterChange, perPage);
+    //---------------------------------------------------
 };
 
 App();

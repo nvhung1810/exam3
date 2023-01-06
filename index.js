@@ -2,13 +2,12 @@ import { EMPLOYEES } from './MOCK_DATA.js';
 import {
     render,
     changeDataAdd,
-    handlerID,
-    handleDataAdd,
     handleChangeData,
     handleSortAZ,
     handleSortZA,
-    changeEnglish,
 } from './util.js';
+
+import { handlerFind, debounce } from './search.js';
 
 const total = EMPLOYEES;
 
@@ -27,7 +26,6 @@ const recordBtn = document.querySelector('.record__btn');
 const recordSelect = document.querySelector('.record');
 
 let page = 1;
-let perPage = 20; // giá trị mặc định
 
 // CẮT TRANG THEO YÊU CẦU
 const cutPage = (listData, page, perPage) => {
@@ -40,13 +38,6 @@ const cutPage = (listData, page, perPage) => {
         ),
     };
 }; // => OK
-
-// CUT TRANG VÀ RENDER LẠI
-// const cutAndRender = (data) => {
-//     let resultRender = [...cutPage(data, page, record)];
-//     card.innerHTML = render(resultRender);
-//     return resultRender;
-// };
 
 // XỬ LÝ NEXT: VỚI NEXT VÀ PREVIEW KHÔNG TRUYỀN BIẾN PAGE
 const handleNext = (listData, perPage) => {
@@ -67,7 +58,7 @@ const handleNext = (listData, perPage) => {
     return cutPage(listData, page, perPage);
 };
 
-// XỬ LÝ LÙI
+// XỬ LÝ PREVIEW
 const handlePreview = (listData, perPage) => {
     if (page > 1) {
         page--;
@@ -79,12 +70,6 @@ const handlePreview = (listData, perPage) => {
     }
     return cutPage(listData, page, perPage);
 };
-
-// XỬ LÝ RECORD
-const handleRecord = () => {
-    perPage = recordSelect.value;
-    return perPage;
-}; // Khi record thì perPage sẽ được cập nhật
 
 // RENDER
 const renderHTML = (listData) => {
@@ -110,68 +95,42 @@ const updateDOM = (listData, perPage) => {
     // SORT AZ
     btnSortAZ.onclick = (e) => {
         e.preventDefault();
-        cutAndRender(handleSortAZ(listData));
+        renderHTML(cutPage(handleSortAZ(listData), page, perPage).records);
     };
     // SORT ZA
     btnSortZA.onclick = (e) => {
         e.preventDefault();
-        cutAndRender(handleSortZA(listData));
+        renderHTML(cutPage(handleSortZA(listData), page, perPage).records);
     };
 };
 
-// XỬ LÝ TÌM KIẾM
-const handlerFind = (listData, keyword) => {
-    let resultSearch = [];
-    listData.forEach((value) => {
-        const fullName = String(value.name).replace(/\s+/g, '').toLowerCase();
-        const fullNameWithoutAccents = changeEnglish(fullName);
-        const email = String(value.email).replace(/\s+/g, '').toLowerCase();
-        const job = String(value.job).replace(/\s+/g, '').toLowerCase();
-        if (fullName.indexOf(keyword) > -1) {
-            resultSearch.push(value);
-        } else if (
-            fullNameWithoutAccents.indexOf(changeEnglish(keyword)) > -1
-        ) {
-            resultSearch.push(value);
-        } else if (email.indexOf(keyword) > -1) {
-            resultSearch.push(value);
-        } else if (job.indexOf(keyword) > -1) {
-            resultSearch.push(value);
-        }
-    });
-    return resultSearch;
-};
-
-function debounce(callBack, delay = 700) {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            callBack(...args);
-        }, delay);
-    };
-}
+// XỬ LÝ RECORD
+const handleRecord = () => {
+    const perPage = recordSelect.value;
+    return perPage;
+}; // Khi record thì perPage sẽ được cập nhật
 
 // MẶC ĐỊNH KHI CHẠY LÊN
-window.onload = () => {
+const App = () => {
+    let perPage = 5;
     const dataAfterChange = handleChangeData(total);
+
+    // recordBtn.onclick = (e) => {
+    //     e.preventDefault();
+    //     const records = handleRecord();
+    //     console.log(records);
+    // };
+
     updateDOM(dataAfterChange, perPage);
     pageDOM.innerHTML = `${perPage} - ${page}/${dataAfterChange.length}`;
 
     // TÌM KIẾM TRẢ VỀ DỮ LIỆU
     const updateDebounceSearch = debounce((enteredData) => {
+        page = 1;
         const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
         if (valueInput !== '') {
             const resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
-
-            updateDOM(resultSearch, perPage);
-
-            // recordBtn.onclick = (e) => {
-            //     e.preventDefault();
-            //     const recordValue = handleRecord();
-            //     updateDOM(resultSearch, recordValue);
-            // };
-
+            updateDOM(resultSearch, 5);
             nameMember.value = '';
             jobPosition.value = '';
         }
@@ -187,7 +146,9 @@ window.onload = () => {
         const valueJob = jobPosition.value;
         updateDOM(
             changeDataAdd(dataAfterChange, valueName, valueJob, message),
-            perPage,
+            5,
         );
     };
 };
+
+App();

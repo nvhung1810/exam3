@@ -122,6 +122,7 @@ export const handleSortAZ = (data) => {
     });
     return newData;
 };
+
 // SORT ZA
 export const handleSortZA = (data) => {
     const newData = data;
@@ -223,6 +224,11 @@ export const handleDataAdd = (listData, id, fullName, job) => {
     };
 };
 
+const containsSpecialChars = (str) => {
+    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    return specialChars.test(str);
+};
+
 // THÊM DỮ LIỆU
 export const changeDataAdd = (listData, fullName, job, messageDOM) => {
     let newData;
@@ -231,6 +237,8 @@ export const changeDataAdd = (listData, fullName, job, messageDOM) => {
             'Giá trị nhập không hợp lệ hoặc điền thiếu thông tin!';
     } else if (Number(fullName.replace(/[^0-9]/g, '')) !== 0) {
         messageDOM.innerHTML = 'Tên không được nhập kiểu số!';
+    } else if (containsSpecialChars(fullName)) {
+        messageDOM.innerHTML = 'Tên không được chứa kí tự đặc biệt';
     } else {
         messageDOM.innerHTML = '';
         listData.unshift(

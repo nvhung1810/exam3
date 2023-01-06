@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./modal.css">
 </head>
 <body>
     <div class="wrapper">
@@ -29,15 +30,36 @@
                 <div class="search">
                     <input type = "text"  class="search__input"></input>
                 </div>
-                <div class="add">
+                <!-- <div class="add">
                     <input type="text" placeholder="Tên nhân viên" class="add__input name__member">
                     <input type="text" placeholder="Trị số" class="add__input small" disabled>
                     <input type="text" placeholder="Email" class="add__input" disabled>
                     <input type="text" placeholder="Vị trí công việc" class="add__input job__position">
                     <input class="add__btn" type="submit" value="Thêm mới nhân viên" />
+                </div> -->
+
+                <!-- MODAL -->
+                <!-- Trigger/Open The Modal -->
+                <button id="myBtn">Add Employees</button>
+
+                <!-- The Modal -->
+                <div id="myModal" class="modal">
+
+                <!-- Modal content -->
+                <div class="modal-content">
+                    <div class="add">
+                        <input type="text" placeholder="Tên nhân viên" class="add__input name__member">
+                        <input type="text" placeholder="Trị số" class="add__input small" disabled>
+                        <input type="text" placeholder="Email" class="add__input" disabled>
+                        <input type="text" placeholder="Vị trí công việc" class="add__input job__position">
+                        <input class="add__btn" type="submit" value="Thêm mới nhân viên" />
+                    </div> 
+                    <span class="close">&times;</span>
+                    <div class="message" style="margin-left: 16px; color: red"></div>
                 </div>
 
-                <div class="message" style="margin-left: 16px; color: red"></div>
+                </div>
+                <!-- ------------------------- -->
                 <div class="toolbar">
                     <!-- RECORD -->
                     <form style="margin-bottom: 0;
@@ -86,6 +108,8 @@
                 
         </div>
     </div>
+    <script type="module" src="./search.js"></script>
+    <script type="module" src="./modal.js"></script>
     <script type="module" src="./index.js"></script>
     <script type="module" src="./action.js"></script>
 </body>

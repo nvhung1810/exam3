@@ -104,72 +104,58 @@ const updateDOM = (listData, perPage) => {
     };
 };
 
-// XỬ LÝ RECORD
-// const handleRecord = () => {
-//     const perPage = Number(recordSelect.value);
-//     return perPage;
-// }; // Khi record thì perPage sẽ được cập nhật
-
 // MẶC ĐỊNH KHI CHẠY LÊN
 const App = () => {
-    let perPage = 20;
     const dataAfterChange = handleChangeData(total);
+    let perPage = 20;
 
     // -------------------------------------------
     updateDOM(dataAfterChange, perPage);
-    recordSelect.onchange = () => {
-        page = 1;
-        const perPageChange = Number(recordSelect.value);
-        updateDOM(dataAfterChange, perPageChange);
-    };
     // -------------------------------------------
-
-    pageDOM.innerHTML = `${perPage} - ${page}/${dataAfterChange.length}`;
-
-    // TÌM KIẾM TRẢ VỀ DỮ LIỆU
-    const updateDebounceSearch = debounce((enteredData) => {
+    const onClickSearch = (perPage) => {
+        inputSearch.addEventListener('keyup', (e) => {
+            updateDebounceSearch(e.target.value, perPage);
+        });
+    };
+    const updateDebounceSearch = debounce((enteredData, perPage) => {
         page = 1;
         const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
         if (valueInput !== '') {
+            console.log(perPage);
             const resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
-
             // -------------------------------------------
             updateDOM(resultSearch, perPage);
-            recordSelect.onchange = () => {
-                page = 1;
-                const perPageChange = Number(recordSelect.value);
-                updateDOM(resultSearch, perPageChange);
-            };
             // -------------------------------------------
-
             nameMember.value = '';
             jobPosition.value = '';
         }
     });
 
-    inputSearch.addEventListener('keyup', (e) => {
-        updateDebounceSearch(e.target.value);
-    });
-
-    btnAdd.onclick = (e) => {
-        e.preventDefault();
-        const valueName = nameMember.value;
-        const valueJob = jobPosition.value;
-
-        // -------------------------------------------
-        updateDOM(
-            changeDataAdd(dataAfterChange, valueName, valueJob, message),
-            perPage,
-        );
-        recordSelect.onchange = () => {
-            page = 1;
-            const perPageChange = Number(recordSelect.value);
+    onClickSearch(perPage);
+    // -------------------------------------------
+    const onClickAdd = (perPage) => {
+        btnAdd.onclick = (e) => {
+            e.preventDefault();
+            console.log(perPage);
+            const valueName = nameMember.value;
+            const valueJob = jobPosition.value;
+            // -------------------------------------------
             updateDOM(
                 changeDataAdd(dataAfterChange, valueName, valueJob, message),
-                perPageChange,
+                perPage,
             );
+            // -------------------------------------------
         };
-        // -------------------------------------------
+    };
+
+    onClickAdd(perPage);
+
+    recordSelect.onchange = () => {
+        const perPageChange = Number(recordSelect.value);
+
+        updateDOM(dataAfterChange, perPageChange);
+        onClickSearch(perPageChange);
+        onClickAdd(perPageChange);
     };
 };
 

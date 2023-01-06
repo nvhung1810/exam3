@@ -105,23 +105,25 @@ const updateDOM = (listData, perPage) => {
 };
 
 // XỬ LÝ RECORD
-const handleRecord = () => {
-    const perPage = recordSelect.value;
-    return perPage;
-}; // Khi record thì perPage sẽ được cập nhật
+// const handleRecord = () => {
+//     const perPage = Number(recordSelect.value);
+//     return perPage;
+// }; // Khi record thì perPage sẽ được cập nhật
 
 // MẶC ĐỊNH KHI CHẠY LÊN
 const App = () => {
-    let perPage = 5;
+    let perPage = 20;
     const dataAfterChange = handleChangeData(total);
 
-    // recordBtn.onclick = (e) => {
-    //     e.preventDefault();
-    //     const records = handleRecord();
-    //     console.log(records);
-    // };
-
+    // -------------------------------------------
     updateDOM(dataAfterChange, perPage);
+    recordSelect.onchange = () => {
+        page = 1;
+        const perPageChange = Number(recordSelect.value);
+        updateDOM(dataAfterChange, perPageChange);
+    };
+    // -------------------------------------------
+
     pageDOM.innerHTML = `${perPage} - ${page}/${dataAfterChange.length}`;
 
     // TÌM KIẾM TRẢ VỀ DỮ LIỆU
@@ -130,7 +132,16 @@ const App = () => {
         const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
         if (valueInput !== '') {
             const resultSearch = handlerFind(dataAfterChange, valueInput); // MẢNG CHỨA LIỆU PHÙ HỢP
-            updateDOM(resultSearch, 5);
+
+            // -------------------------------------------
+            updateDOM(resultSearch, perPage);
+            recordSelect.onchange = () => {
+                page = 1;
+                const perPageChange = Number(recordSelect.value);
+                updateDOM(resultSearch, perPageChange);
+            };
+            // -------------------------------------------
+
             nameMember.value = '';
             jobPosition.value = '';
         }
@@ -144,10 +155,21 @@ const App = () => {
         e.preventDefault();
         const valueName = nameMember.value;
         const valueJob = jobPosition.value;
+
+        // -------------------------------------------
         updateDOM(
             changeDataAdd(dataAfterChange, valueName, valueJob, message),
-            5,
+            perPage,
         );
+        recordSelect.onchange = () => {
+            page = 1;
+            const perPageChange = Number(recordSelect.value);
+            updateDOM(
+                changeDataAdd(dataAfterChange, valueName, valueJob, message),
+                perPageChange,
+            );
+        };
+        // -------------------------------------------
     };
 };
 

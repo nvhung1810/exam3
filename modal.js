@@ -1,4 +1,4 @@
-import { nameMember, jobPosition } from './index.js';
+import { nameMember, jobPosition, emailMember } from './index.js';
 
 const modal = document.getElementById('myModal');
 
@@ -17,6 +17,7 @@ btn.onclick = function () {
 closeBtn.onclick = function () {
     nameMember.value = '';
     jobPosition.value = '';
+    emailMember.value = '';
     modal.style.display = 'none';
 };
 

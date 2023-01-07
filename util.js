@@ -22,13 +22,6 @@ export const render = (listData) => {
         .join('');
     return renderResult;
 };
-// LẤY CHỮ CÁI ĐẦU LÀM AVT
-export const handleAvt = (fullName) => {
-    const lastName = fullName.trim().split(' ').slice(-1).join(' ');
-    const avt = lastName.charAt(0);
-
-    return avt;
-};
 // CẬP NHẬT LẠI DỮ LIỆU CÓ CẢ AVT
 export const handleChangeData = (data) => {
     let newTotal = [];
@@ -53,6 +46,13 @@ export const handleChangeData = (data) => {
     });
 
     return newTotal;
+};
+// LẤY CHỮ CÁI ĐẦU LÀM AVT
+const handleAvt = (fullName) => {
+    const lastName = fullName.trim().split(' ').slice(-1).join(' ');
+    const avt = lastName.charAt(0);
+
+    return avt;
 };
 // LẤY ID CAO NHẤT
 export const handlerID = (value) => {
@@ -114,6 +114,8 @@ export const handleChangeNameToEmail = (fullName) => {
     }
     return email;
 };
+
+// -----------------------------------------------------------
 // SORT AZ
 export const handleSortAZ = (data) => {
     const newData = data;
@@ -122,7 +124,6 @@ export const handleSortAZ = (data) => {
     });
     return newData;
 };
-
 // SORT ZA
 export const handleSortZA = (data) => {
     const newData = data;
@@ -131,15 +132,21 @@ export const handleSortZA = (data) => {
     });
     return newData.reverse();
 };
+// -----------------------------------------------------------
 
+// XÓA KHOẢNG TRẮNG TRONG CHUỖI
 const removeWhitespace = (value) => {
     return value.replace(/\s+/g, ' ').toLowerCase();
 };
-
+// LẤY SỐ TRONG CHUỖI
 const getNumberInText = (value) => {
     return Number(value.replace(/[^0-9]/g, ''));
 };
-
+// KIỂM TRA KÍ TỰ ĐẶC BIỆT TRONG CHUỖI
+const containsSpecialChars = (str) => {
+    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
+    return specialChars.test(str);
+};
 // NẾU NHƯ TÊN ĐÃ CÓ TRONG API -> [0,1....] NẾU KHÔNG CÓ -> []
 const getMaxNumberInName = (list, keyCheck) => {
     const listNumber = [];
@@ -164,7 +171,7 @@ const getMaxNumberInName = (list, keyCheck) => {
     });
     return listNumber;
 };
-
+// XỬ LÝ THÊM TRỊ SỐ VÀO TÊN
 const handleNumericValueName = (listNumber, fullName) => {
     let newName;
     if (listNumber.length === 0) {
@@ -175,8 +182,8 @@ const handleNumericValueName = (listNumber, fullName) => {
 
     return newName;
 };
-
-const getMaxNumberInEmail = (list, keyCheck) => {
+// LẤY SỐ LỚN NHẤT TRONG TÊN
+export const getMaxNumberInEmail = (list, keyCheck) => {
     let numberList = [];
     list.forEach((item) => {
         const nameEmail = String(item.email).split('@')[0];
@@ -193,8 +200,8 @@ const getMaxNumberInEmail = (list, keyCheck) => {
     });
     return numberList;
 };
-
-const handleNumericValueEmail = (listNumber, email) => {
+// THÊM TRỊ SỐ VÀO EMAIL
+export const handleNumericValueEmail = (listNumber, email) => {
     let newEmail;
     if (listNumber.length === 0) {
         newEmail = `${email}@ntq-solution.com.vn`;
@@ -203,14 +210,13 @@ const handleNumericValueEmail = (listNumber, email) => {
     }
     return newEmail;
 };
-
-// XỬ LÝ THÊM DỮ LIỆU
-export const handleDataAdd = (listData, id, fullName, job) => {
+// TRẢ VỀ OBJECT CHỨA THÔNG TIN THÊM
+const handleDataAdd = (listNumber, id, fullName, job) => {
     const email = handleChangeNameToEmail(fullName); // LẤY RA EMAIL
     const fullNameCheck = removeWhitespace(fullName); // nguyễnvănhưng
 
-    const maxNumberName = getMaxNumberInName(listData, fullNameCheck);
-    const maxNumberEmail = getMaxNumberInEmail(listData, email);
+    const maxNumberName = getMaxNumberInName(listNumber, fullNameCheck);
+    const maxNumberEmail = getMaxNumberInEmail(listNumber, email);
 
     const newFullName = handleNumericValueName(maxNumberName, fullName);
     const newEmail = handleNumericValueEmail(maxNumberEmail, email);
@@ -223,13 +229,7 @@ export const handleDataAdd = (listData, id, fullName, job) => {
         avt: handleAvt(newFullName.trim()).toUpperCase(),
     };
 };
-
-const containsSpecialChars = (str) => {
-    const specialChars = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
-    return specialChars.test(str);
-};
-
-// THÊM DỮ LIỆU
+// XỬ LÝ THÊM DỮ LIỆU (CHECK CÁC TRƯỜNG HỢP NG DÙNG NHẬP VÀO) - NẾU KHÔNG LỖI THÌ PUSH DỮ LIỆU VÀO ĐẦU MẢNG
 export const changeDataAdd = (listData, fullName, job, messageDOM) => {
     let newData;
     if (fullName.replace(/\s+/g, '') === '' || job.replace(/\s+/g, '') === '') {

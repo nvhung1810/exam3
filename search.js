@@ -22,13 +22,3 @@ export const handlerFind = (listData, keyword) => {
     });
     return resultSearch;
 };
-
-export function debounce(callBack, delay = 700) {
-    let timeout;
-    return (...args) => {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => {
-            callBack(...args);
-        }, delay);
-    };
-}

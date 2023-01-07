@@ -1,5 +1,5 @@
 const select = document.querySelector('.select');
-const sort = document.querySelector('.sort');
+export const sort = document.querySelector('.sort');
 
 select.addEventListener('click', handlerToggle);
 

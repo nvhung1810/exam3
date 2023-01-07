@@ -12,6 +12,7 @@ import {
 
 import { handlerFind } from './search.js';
 import { debounce } from './debounce.js';
+import { sort } from './action.js';
 
 const total = EMPLOYEES;
 
@@ -30,6 +31,7 @@ const recordSelect = document.querySelector('.record');
 export const emailMember = document.querySelector('.email__member');
 
 let page = 1;
+let perPage = 20;
 
 // CẮT TRANG THEO YÊU CẦU
 const cutPage = (listData, page, perPage) => {
@@ -42,37 +44,45 @@ const cutPage = (listData, page, perPage) => {
         ),
     };
 };
+const updatePerPageDOM = (listData, perPage, page, check) => {
+    if (check === true) {
+        pageDOM.innerHTML = `${page * perPage} - ${page}/${listData.length}`;
+    } else {
+        pageDOM.innerHTML = `${listData.length - page * perPage} - ${page}/${
+            listData.length
+        }`;
+    }
+};
+
 // XỬ LÝ NEXT: VỚI NEXT VÀ PREVIEW KHÔNG TRUYỀN BIẾN PAGE
 const handleNext = (listData, perPage) => {
     page++;
-    if (page < Math.ceil(listData.length / perPage)) {
-        if (page * perPage > listData.length) {
-            pageDOM.innerHTML = `${listData.length} - ${
-                page * perPage - perPage + 1
-            }/${listData.length}`;
-        } else {
-            pageDOM.innerHTML = `${page * perPage} - ${
-                page * perPage - perPage + 1
-            }/${listData.length}`;
-        }
+    const maxPage = Math.ceil(listData.length / perPage);
+    if (page < maxPage) {
+        updatePerPageDOM(listData, perPage, page, true);
         btnPreview.disabled = false;
     } else {
-        page = Math.ceil(listData.length / perPage);
+        const previewPage = page - 1;
+        updatePerPageDOM(listData, perPage, previewPage, false);
         btnNext.disabled = true;
     }
     return cutPage(listData, page, perPage);
 };
 // XỬ LÝ PREVIEW
 const handlePreview = (listData, perPage) => {
+    const maxPage = Math.ceil(listData.length / perPage);
     page--;
 
     if (page > 1) {
-        pageDOM.innerHTML = `${page * perPage} - ${
-            page * perPage - perPage + 1
-        }/${(listData, listData.length)}`;
+        if (page < maxPage) {
+            updatePerPageDOM(listData, perPage, page, true);
+        } else {
+            const previewPage = page - 1;
+            updatePerPageDOM(listData, perPage, previewPage, false);
+        }
         btnNext.disabled = false;
     } else {
-        page = 1;
+        updatePerPageDOM(listData, perPage, page, true);
         btnPreview.disabled = true;
     }
     return cutPage(listData, page, perPage);
@@ -108,11 +118,9 @@ const updateDOM = (listData, perPage) => {
         renderHTML(cutPage(handleSortZA(listData), page, perPage).records);
     };
     // ------- HIỂN THỊ EMAIL Ở Ô EMAIL KHI NGƯỜI DÙNG NHẬP ----------
-    nameMember.onkeyup = (e) => {
+
+    const setEmailDebounce = () => {
         const email = handleChangeNameToEmail(nameMember.value);
-        updateDebounceEmail(email);
-    };
-    const updateDebounceEmail = debounce((email) => {
         const maxNumberEmail = getMaxNumberInEmail(listData, email);
         const newEmail = handleNumericValueEmail(maxNumberEmail, email); // OK
         if (nameMember.value === '') {
@@ -120,69 +128,69 @@ const updateDOM = (listData, perPage) => {
         } else {
             emailMember.value = newEmail;
         }
-    });
+    };
+
+    nameMember.addEventListener('keyup', debounce(setEmailDebounce, 400));
     /// ---------------------------------------------------------------
 };
 // MẶC ĐỊNH KHI CHẠY LÊN
 const App = () => {
     const dataAfterChange = handleChangeData(total);
-    let perPage = 20;
+    let result;
     // ---------------------SEARCH----------------------
-    const onGetDataInput = (element, perPage) => {
-        element.addEventListener('keyup', (e) => {
-            updateDebounceSearch(e.target.value, perPage);
-        });
-    };
-    const updateDebounceSearch = debounce((enteredData, perPage) => {
+    const searchDebounce = () => {
         page = 1;
-        const valueInput = enteredData.replace(/\s+/g, '').toLowerCase(); // LẤY DỮ LIỆU Ô INPUT NHẬP VÀO
-        if (valueInput !== '') {
-            const resultSearch = handlerFind(dataAfterChange, valueInput);
+        let userValue = inputSearch.value.replace(/\s+/g, '').toLowerCase();
+        let resultSearch;
+        // const valueInput = enteredData.;
+        if (userValue !== '') {
+            resultSearch = handlerFind(dataAfterChange, userValue);
             if (resultSearch.length !== 0) {
-                updateDOM(resultSearch, perPage);
-                pageDOM.innerHTML = `${perPage} - ${page}/${resultSearch.length}`;
+                result = resultSearch;
             } else {
                 alert('Input data is empty!');
             }
         }
         nameMember.value = '';
         jobPosition.value = '';
-    });
-    // ---------------------ADD--------------------------
-    const onClickAdd = (perPage) => {
-        btnAdd.onclick = (e) => {
-            page = 1;
-            e.preventDefault();
-            console.log(perPage);
-            const valueName = nameMember.value;
-            const valueJob = jobPosition.value;
-            // ------------------------------------------
-            updateDOM(
-                changeDataAdd(dataAfterChange, valueName, valueJob, message),
-                perPage,
-            );
-            pageDOM.innerHTML = `${perPage} - ${page}/${
-                changeDataAdd(dataAfterChange, valueName, valueJob, message)
-                    .length
-            }`;
-            // -------------------------------------------
-        };
+        updateDOM(result, perPage);
     };
-    // ---------------------RECORD--------------------------
-    recordSelect.onchange = () => {
-        const perPageChange = Number(recordSelect.value);
-        updateDOM(dataAfterChange, perPageChange);
-        onGetDataInput(inputSearch, perPageChange);
-        onClickAdd(perPageChange);
+    inputSearch.addEventListener('keydown', debounce(searchDebounce, 400));
+    // ---------------------ADD--------------------------
+    btnAdd.onclick = (e) => {
+        page = 1;
+        e.preventDefault();
+        status = false;
+        const valueName = nameMember.value;
+        const valueJob = jobPosition.value;
+        // ------------------------------------------
+        const newData = changeDataAdd(
+            dataAfterChange,
+            valueName,
+            valueJob,
+            message,
+        );
+        updateDOM(newData, perPage);
+        pageDOM.innerHTML = `${perPage} - ${page}/${newData.length}`;
+        // -------------------------------------------
     };
     // ---------------------DEFAULT----------------------
     const onLoadDefault = (listData, perPage) => {
         updateDOM(listData, perPage);
-        onGetDataInput(inputSearch, perPage);
-        onClickAdd(perPage);
-        pageDOM.innerHTML = `${perPage} - ${page}/${dataAfterChange.length}`;
+        updatePerPageDOM(listData, perPage, 1, true);
     };
     onLoadDefault(dataAfterChange, perPage);
+    // ---------------------RECORD--------------------------
+    recordSelect.onclick = () => {
+        sort.classList.remove('active');
+    };
+
+    recordSelect.onchange = (e) => {
+        const newPerPage = Number(e.target.value);
+        perPage = newPerPage;
+        onLoadDefault(dataAfterChange, perPage);
+    };
+
     //---------------------------------------------------
 };
 

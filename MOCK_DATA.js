@@ -799,7 +799,7 @@ export const EMPLOYEES = [
     },
     {
         id: 4641,
-        name: 'Hin Yuen   ',
+        name: 'Hin Yuen',
         email: 'yuen.hin@ntq-solution.com.vn',
         job: 'Technical Leader',
     },

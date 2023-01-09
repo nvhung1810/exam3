@@ -32,17 +32,26 @@ export const emailMember = document.querySelector('.email__member');
 
 let page = 1;
 let perPage = 20;
+let statusSort;
+let resultSort;
+let status;
 
 // CẮT TRANG THEO YÊU CẦU
 const cutPage = (listData, page, perPage) => {
-    return {
-        total: listData.length,
-        currentPage: page,
-        records: listData.slice(
-            (page - 1) * perPage,
-            (page - 1) * perPage + perPage,
-        ),
-    };
+    let newData;
+    if (listData === undefined) {
+        console.log('>>>> ERROR');
+    } else {
+        newData = {
+            total: listData.length,
+            currentPage: page,
+            records: listData.slice(
+                (page - 1) * perPage,
+                (page - 1) * perPage + perPage,
+            ),
+        };
+    }
+    return newData;
 };
 const updatePerPageDOM = (listData, perPage, page, check) => {
     if (check === true) {
@@ -53,7 +62,6 @@ const updatePerPageDOM = (listData, perPage, page, check) => {
         }`;
     }
 };
-
 // XỬ LÝ NEXT: VỚI NEXT VÀ PREVIEW KHÔNG TRUYỀN BIẾN PAGE
 const handleNext = (listData, perPage) => {
     page++;
@@ -94,44 +102,50 @@ const renderHTML = (listData) => {
 // CẬP NHẬT LẠI TRANG WEB
 const updateDOM = (listData, perPage) => {
     // DEFAULT
-    renderHTML(cutPage(listData, page, perPage).records);
-    // NEXT
-    btnNext.onclick = (e) => {
-        e.preventDefault();
-        const records = handleNext(listData, perPage).records;
-        renderHTML(records);
-    };
-    // PREVIEW
-    btnPreview.onclick = (e) => {
-        e.preventDefault();
-        const record = handlePreview(listData, perPage).records;
-        renderHTML(record);
-    };
-    // SORT AZ
-    btnSortAZ.onclick = (e) => {
-        e.preventDefault();
-        renderHTML(cutPage(handleSortAZ(listData), page, perPage).records);
-    };
-    // SORT ZA
-    btnSortZA.onclick = (e) => {
-        e.preventDefault();
-        renderHTML(cutPage(handleSortZA(listData), page, perPage).records);
-    };
-    // ------- HIỂN THỊ EMAIL Ở Ô EMAIL KHI NGƯỜI DÙNG NHẬP ----------
-
-    const setEmailDebounce = () => {
-        const email = handleChangeNameToEmail(nameMember.value);
-        const maxNumberEmail = getMaxNumberInEmail(listData, email);
-        const newEmail = handleNumericValueEmail(maxNumberEmail, email); // OK
-        if (nameMember.value === '') {
-            emailMember.value = '';
-        } else {
-            emailMember.value = newEmail;
-        }
-    };
-
-    nameMember.addEventListener('keyup', debounce(setEmailDebounce, 400));
-    /// ---------------------------------------------------------------
+    if (cutPage(listData, page, perPage) === undefined) {
+        console.log('>>> ERROR');
+    } else {
+        renderHTML(cutPage(listData, page, perPage).records);
+        // NEXT
+        btnNext.onclick = (e) => {
+            e.preventDefault();
+            const records = handleNext(listData, perPage).records;
+            renderHTML(records);
+        };
+        // PREVIEW
+        btnPreview.onclick = (e) => {
+            e.preventDefault();
+            const record = handlePreview(listData, perPage).records;
+            renderHTML(record);
+        };
+        // SORT AZ
+        btnSortAZ.onclick = (e) => {
+            e.preventDefault();
+            resultSort = handleSortAZ(listData);
+            renderHTML(cutPage(handleSortAZ(listData), page, perPage).records);
+            statusSort = true;
+        };
+        // SORT ZA
+        btnSortZA.onclick = (e) => {
+            e.preventDefault();
+            resultSort = handleSortZA(listData);
+            renderHTML(cutPage(handleSortZA(listData), page, perPage).records);
+            statusSort = false;
+        };
+        // ------- HIỂN THỊ EMAIL Ở Ô EMAIL KHI NGƯỜI DÙNG NHẬP ----------
+        const setEmailDebounce = () => {
+            const email = handleChangeNameToEmail(nameMember.value);
+            const maxNumberEmail = getMaxNumberInEmail(listData, email);
+            const newEmail = handleNumericValueEmail(maxNumberEmail, email); // OK
+            if (nameMember.value === '') {
+                emailMember.value = '';
+            } else {
+                emailMember.value = newEmail;
+            }
+        };
+        nameMember.addEventListener('keyup', debounce(setEmailDebounce, 400));
+        /// ---------------------------------------------------------------
+    }
 };
 // MẶC ĐỊNH KHI CHẠY LÊN
 const App = () => {
@@ -149,29 +163,62 @@ const App = () => {
                 result = resultSearch;
             } else {
                 alert('Input data is empty!');
+                result = dataAfterChange;
             }
         }
         nameMember.value = '';
         jobPosition.value = '';
         updateDOM(result, perPage);
+        status = true;
     };
-    inputSearch.addEventListener('keydown', debounce(searchDebounce, 400));
+    inputSearch.addEventListener('keyup', debounce(searchDebounce, 400));
     // ---------------------ADD--------------------------
     btnAdd.onclick = (e) => {
-        page = 1;
         e.preventDefault();
-        status = false;
         const valueName = nameMember.value;
         const valueJob = jobPosition.value;
         // ------------------------------------------
-        const newData = changeDataAdd(
-            dataAfterChange,
-            valueName,
-            valueJob,
-            message,
-        );
-        updateDOM(newData, perPage);
-        pageDOM.innerHTML = `${perPage} - ${page}/${newData.length}`;
+        // THỰC HIỆN THÊM -> GỌI LẠI SORT Ở BƯỚC 2
+        // NẾU NHƯ NEWDATA THỎA MÃN ĐIỀU KIỆN SORT -> HIỂN THỊ NEWDATA LÀ CÁI MỚI NHƯNG ĐÃ SORT
+        // NẾU NHƯ NEWDATA KHÔNG THỎA MÃN ĐIỀU KIỆN SORT THÌ HIỂN THỊ NEWDATA KHÔNG SORT
+        if (statusSort === true) {
+            const newData = changeDataAdd(
+                resultSort,
+                valueName,
+                valueJob,
+                message,
+            );
+            const newDataAddSortAZ = handleSortAZ(newData);
+            updateDOM(newDataAddSortAZ, perPage);
+            pageDOM.innerHTML = `${perPage} - ${page}/${newDataAddSortAZ.length}`;
+        } else if (statusSort === false) {
+            const newData = changeDataAdd(
+                resultSort,
+                valueName,
+                valueJob,
+                message,
+            );
+            const newDataAddSortZA = handleSortZA(newData);
+            updateDOM(newDataAddSortZA, perPage);
+            pageDOM.innerHTML = `${perPage} - ${page}/${newDataAddSortZA.length}`;
+        } else if (statusSort === undefined || status === true) {
+            const newData = changeDataAdd(
+                dataAfterChange,
+                valueName,
+                valueJob,
+                message,
+            );
+            if (newData === undefined) {
+                console.log('>>> Error');
+            } else {
+                updateDOM(newData, perPage);
+                pageDOM.innerHTML = `${perPage} - ${page}/${newData.length}`;
+            }
+        } else {
+            console.log(' >>> Error Add Data');
+        }
+        inputSearch.value = '';
+        status = false;
         // -------------------------------------------
     };
     // ---------------------DEFAULT----------------------
@@ -188,9 +235,19 @@ const App = () => {
     recordSelect.onchange = (e) => {
         const newPerPage = Number(e.target.value);
         perPage = newPerPage;
-        onLoadDefault(dataAfterChange, perPage);
+        if (status === true) {
+            // Search đang hoạt động
+            onLoadDefault(result, perPage);
+        } else if (status === false) {
+            // add đang hoạt động
+            onLoadDefault(result, perPage);
+        } else if (status === undefined) {
+            // mặc định chưa xảy ra search hay add
+            onLoadDefault(dataAfterChange, perPage);
+        } else {
+            console.log('>>> Error');
+        }
     };
-
     //---------------------------------------------------
 };
 

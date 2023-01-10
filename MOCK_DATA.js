@@ -7,8 +7,8 @@ export const EMPLOYEES = [
     },
     {
         id: 4602,
-        name: 'Đặng Thị Khánh Linh',
-        email: 'linh.dang10@ntq-solution.com.vn',
+        name: 'Đặng Thị Mỹ Linh',
+        email: 'linh.dang1@ntq-solution.com.vn',
         job: 'Tester',
     },
     {
@@ -54,12 +54,6 @@ export const EMPLOYEES = [
         job: 'PM',
     },
     {
-        id: 3169,
-        name: 'Đặng Văn Nam',
-        email: 'nam.dang@ntq-solution.com.vn',
-        job: 'PM',
-    },
-    {
         id: 1613,
         name: 'Đặng Văn Nghĩa',
         email: 'nghia.dang@ntq-solution.com.vn',
@@ -75,12 +69,6 @@ export const EMPLOYEES = [
         id: 5539,
         name: 'Đào Ngọc Huyền',
         email: 'huyen.dao@ntq-solution.com.vn',
-        job: 'Accountant',
-    },
-    {
-        id: 5540,
-        name: 'Đào Thu Huyền',
-        email: 'huyen.dao1@ntq-solution.com.vn',
         job: 'Accountant',
     },
     {
@@ -474,21 +462,9 @@ export const EMPLOYEES = [
         job: 'Recruiter Executive',
     },
     {
-        id: 4635,
-        name: 'Đỗ Thị Dung',
-        email: 'dung.do1@ntq-solution.com.vn',
-        job: 'Manager',
-    },
-    {
-        id: 4636,
-        name: 'Đỗ Thị Thiên Ân',
-        email: 'an.do@ntq-solution.com.vn',
-        job: 'Manager',
-    },
-    {
         id: 4634,
         name: 'Đỗ Thị Dung 1',
-        email: 'dung.do2@ntq-solution.com.vn',
+        email: 'dung.do1@ntq-solution.com.vn',
         job: 'Manager',
     },
     {
@@ -714,24 +690,6 @@ export const EMPLOYEES = [
         job: 'HR staff',
     },
     {
-        id: 5216,
-        name: 'Dương Xuân Hoàng',
-        email: 'hoang.duong1@reco-vn.com',
-        job: 'HR staff',
-    },
-    {
-        id: 5217,
-        name: 'Dương Thị Hồng',
-        email: 'hong.duong1@reco-vn.com',
-        job: 'HR staff',
-    },
-    {
-        id: 5218,
-        name: 'Dương Thi Dịu',
-        email: 'hong.duong1@reco-vn.com',
-        job: 'HR staff',
-    },
-    {
         id: 3738,
         name: 'Edatsune Isao',
         email: 'isao.edatsune@ntq-solution.com.vn',
@@ -799,7 +757,7 @@ export const EMPLOYEES = [
     },
     {
         id: 4641,
-        name: 'Hin Yuen',
+        name: 'Hin Yuen ',
         email: 'yuen.hin@ntq-solution.com.vn',
         job: 'Technical Leader',
     },

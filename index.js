@@ -2,8 +2,10 @@ import { EMPLOYEES } from './MOCK_DATA.js';
 import {
     render,
     handleChangeData,
-    handleSortAZ,
-    handleSortZA,
+    // handleSortAZ,
+    // handleSortZA,
+    handleSort,
+    handleAvt,
     changeDataAdd,
     handleChangeNameToEmail,
     getMaxNumberInEmail,
@@ -13,6 +15,7 @@ import {
 import { handlerFind } from './search.js';
 import { debounce } from './debounce.js';
 import { sort } from './action.js';
+import { clearInput } from './modal.js';
 
 const total = EMPLOYEES;
 
@@ -26,7 +29,7 @@ const btnSortZA = document.querySelector('.ztoA');
 export const nameMember = document.querySelector('.name__member');
 export const jobPosition = document.querySelector('.job__position');
 const btnAdd = document.querySelector('.add__btn');
-const message = document.querySelector('.message');
+export const message = document.querySelector('.message');
 const recordSelect = document.querySelector('.record');
 export const emailMember = document.querySelector('.email__member');
 
@@ -53,11 +56,15 @@ const cutPage = (listData, page, perPage) => {
     }
     return newData;
 };
-const updatePerPageDOM = (listData, perPage, page, check) => {
+const updatePerPageDOM = (listData, page, perPage, check) => {
     if (check === true) {
-        pageDOM.innerHTML = `${page * perPage} - ${page}/${listData.length}`;
+        // hiển thị page cho next
+        pageDOM.innerHTML = `${page * perPage} - ${(page - 1) * perPage + 1}/${
+            listData.length
+        }`;
     } else {
-        pageDOM.innerHTML = `${listData.length - page * perPage} - ${page}/${
+        // hiển thị page cho preview
+        pageDOM.innerHTML = `${listData.length} - ${(page - 1) * perPage + 1}/${
             listData.length
         }`;
     }
@@ -66,38 +73,47 @@ const updatePerPageDOM = (listData, perPage, page, check) => {
 const handleNext = (listData, perPage) => {
     page++;
     const maxPage = Math.ceil(listData.length / perPage);
-    if (page < maxPage) {
-        updatePerPageDOM(listData, perPage, page, true);
+    if (page === 1) {
+        updatePerPageDOM(listData, page, perPage, true);
+        btnPreview.disabled = true;
+        btnNext.disabled = false;
+    } else if (page > 1 && page < maxPage) {
+        updatePerPageDOM(listData, page, perPage, false);
+        btnNext.disabled = false;
         btnPreview.disabled = false;
     } else {
-        const previewPage = page - 1;
-        updatePerPageDOM(listData, perPage, previewPage, false);
+        updatePerPageDOM(listData, page, perPage, false);
         btnNext.disabled = true;
+        btnPreview.disabled = false;
     }
     return cutPage(listData, page, perPage);
 };
 // XỬ LÝ PREVIEW
 const handlePreview = (listData, perPage) => {
-    const maxPage = Math.ceil(listData.length / perPage);
     page--;
-
-    if (page > 1) {
-        if (page < maxPage) {
-            updatePerPageDOM(listData, perPage, page, true);
-        } else {
-            const previewPage = page - 1;
-            updatePerPageDOM(listData, perPage, previewPage, false);
-        }
-        btnNext.disabled = false;
-    } else {
-        updatePerPageDOM(listData, perPage, page, true);
+    const maxPage = Math.ceil(listData.length / perPage);
+    if (page === 1) {
+        updatePerPageDOM(listData, page, perPage, true);
         btnPreview.disabled = true;
+        btnNext.disabled = false;
+    } else if (page > 1 && page < maxPage) {
+        updatePerPageDOM(listData, page, perPage, false);
+        btnNext.disabled = false;
+        btnPreview.disabled = false;
+    } else {
+        updatePerPageDOM(listData, page, perPage, false);
+        btnNext.disabled = true;
+        btnPreview.disabled = false;
     }
     return cutPage(listData, page, perPage);
 };
 // RENDER
 const renderHTML = (listData) => {
     card.innerHTML = render(listData);
+};
+const sortByName = (listDataSort, page, perPage) => {
+    resultSort = listDataSort;
+    renderHTML(cutPage(resultSort, page, perPage).records);
 };
 // CẬP NHẬT LẠI TRANG WEB
 const updateDOM = (listData, perPage) => {
@@ -121,15 +137,15 @@ const updateDOM = (listData, perPage) => {
         // SORT AZ
         btnSortAZ.onclick = (e) => {
             e.preventDefault();
-            resultSort = handleSortAZ(listData);
-            renderHTML(cutPage(handleSortAZ(listData), page, perPage).records);
+            sortByName(handleSort(listData), 1, perPage);
+            updatePerPageDOM(listData, 1, perPage, true);
             statusSort = true;
         };
         // SORT ZA
         btnSortZA.onclick = (e) => {
             e.preventDefault();
-            resultSort = handleSortZA(listData);
-            renderHTML(cutPage(handleSortZA(listData), page, perPage).records);
+            sortByName(handleSort(listData).reverse(), 1, perPage);
+            updatePerPageDOM(listData, 1, perPage, true);
             statusSort = false;
         };
         // ------- HIỂN THỊ EMAIL Ở Ô EMAIL KHI NGƯỜI DÙNG NHẬP ----------
@@ -137,26 +153,39 @@ const updateDOM = (listData, perPage) => {
             const email = handleChangeNameToEmail(nameMember.value);
             const maxNumberEmail = getMaxNumberInEmail(listData, email);
             const newEmail = handleNumericValueEmail(maxNumberEmail, email); // OK
-            if (nameMember.value === '') {
+            if (nameMember.value.trim() === '') {
                 emailMember.value = '';
             } else {
                 emailMember.value = newEmail;
             }
         };
-        nameMember.addEventListener('keyup', debounce(setEmailDebounce, 400));
+        nameMember.onkeydown = debounce(setEmailDebounce, 400);
+        nameMember.oninput = (e) => {
+            if (e.target.value) {
+                message.innerHTML = '';
+            }
+        };
         /// ---------------------------------------------------------------
     }
 };
 // MẶC ĐỊNH KHI CHẠY LÊN
-const App = () => {
-    const dataAfterChange = handleChangeData(total);
+const app = () => {
     let result;
+    const dataAfterChange = handleChangeData(total);
     // ---------------------SEARCH----------------------
+    const updatePageDomAndBtnNextWhenSearch = (list, perPage) => {
+        if (list.length - perPage <= 0) {
+            btnNext.disabled = true;
+            updatePerPageDOM(result, page, perPage, false);
+        } else {
+            btnNext.disabled = false;
+            updatePerPageDOM(result, page, perPage, true);
+        }
+    };
     const searchDebounce = () => {
         page = 1;
         let userValue = inputSearch.value.replace(/\s+/g, '').toLowerCase();
         let resultSearch;
-        // const valueInput = enteredData.;
         if (userValue !== '') {
             resultSearch = handlerFind(dataAfterChange, userValue);
             if (resultSearch.length !== 0) {
@@ -165,84 +194,86 @@ const App = () => {
                 alert('Input data is empty!');
                 result = dataAfterChange;
             }
+        } else {
+            result = dataAfterChange;
         }
-        nameMember.value = '';
-        jobPosition.value = '';
+        clearInput();
         updateDOM(result, perPage);
+        updatePageDomAndBtnNextWhenSearch(result, perPage);
         status = true;
     };
-    inputSearch.addEventListener('keyup', debounce(searchDebounce, 400));
+    inputSearch.onkeyup = debounce(searchDebounce, 400);
     // ---------------------ADD--------------------------
-    btnAdd.onclick = (e) => {
-        e.preventDefault();
+    const resultDataAdd = (listData) => {
         const valueName = nameMember.value;
         const valueJob = jobPosition.value;
+        return changeDataAdd(listData, valueName, valueJob, message);
+    };
+    btnAdd.onclick = (e) => {
+        page = 1;
+        e.preventDefault();
         // ------------------------------------------
         // THỰC HIỆN THÊM -> GỌI LẠI SORT Ở BƯỚC 2
         // NẾU NHƯ NEWDATA THỎA MÃN ĐIỀU KIỆN SORT -> HIỂN THỊ NEWDATA LÀ CÁI MỚI NHƯNG ĐÃ SORT
         // NẾU NHƯ NEWDATA KHÔNG THỎA MÃN ĐIỀU KIỆN SORT THÌ HIỂN THỊ NEWDATA KHÔNG SORT
-        if (statusSort === true) {
-            const newData = changeDataAdd(
-                resultSort,
-                valueName,
-                valueJob,
-                message,
-            );
-            const newDataAddSortAZ = handleSortAZ(newData);
-            updateDOM(newDataAddSortAZ, perPage);
-            pageDOM.innerHTML = `${perPage} - ${page}/${newDataAddSortAZ.length}`;
-        } else if (statusSort === false) {
-            const newData = changeDataAdd(
-                resultSort,
-                valueName,
-                valueJob,
-                message,
-            );
-            const newDataAddSortZA = handleSortZA(newData);
-            updateDOM(newDataAddSortZA, perPage);
-            pageDOM.innerHTML = `${perPage} - ${page}/${newDataAddSortZA.length}`;
-        } else if (statusSort === undefined || status === true) {
-            const newData = changeDataAdd(
-                dataAfterChange,
-                valueName,
-                valueJob,
-                message,
-            );
-            if (newData === undefined) {
-                console.log('>>> Error');
-            } else {
-                updateDOM(newData, perPage);
-                pageDOM.innerHTML = `${perPage} - ${page}/${newData.length}`;
+        if (status === true) {
+            result = resultDataAdd(dataAfterChange);
+            updateDOM(result, perPage);
+            updatePerPageDOM(result, page, perPage, true);
+            if (page === 1) {
+                btnPreview.disabled = true;
             }
         } else {
-            console.log(' >>> Error Add Data');
+            if (statusSort === true) {
+                result = resultDataAdd(resultSort);
+                const newDataAddSortAZ = handleSort(result);
+                updateDOM(newDataAddSortAZ, perPage);
+                updatePerPageDOM(newDataAddSortAZ, 1, perPage, true);
+            } else if (statusSort === false) {
+                result = resultDataAdd(resultSort);
+                const newDataAddSortZA = handleSort(result).reverse();
+                updateDOM(newDataAddSortZA, perPage);
+                updatePerPageDOM(newDataAddSortZA, 1, perPage, true);
+            } else if (statusSort === undefined) {
+                result = resultDataAdd(dataAfterChange);
+                if (result === undefined) {
+                    console.log('>>> Error');
+                } else {
+                    updateDOM(result, perPage);
+                    updatePerPageDOM(result, 1, perPage, true);
+                }
+            } else {
+                console.log(' >>> Error Add Data');
+            }
         }
-        inputSearch.value = '';
+
+        clearInput();
         status = false;
         // -------------------------------------------
     };
     // ---------------------DEFAULT----------------------
     const onLoadDefault = (listData, perPage) => {
+        if (page === 1) {
+            btnPreview.disabled = true;
+        }
         updateDOM(listData, perPage);
-        updatePerPageDOM(listData, perPage, 1, true);
+        updatePerPageDOM(listData, 1, perPage, true);
     };
     onLoadDefault(dataAfterChange, perPage);
     // ---------------------RECORD--------------------------
     recordSelect.onclick = () => {
         sort.classList.remove('active');
     };
-
     recordSelect.onchange = (e) => {
+        inputSearch.value = '';
         const newPerPage = Number(e.target.value);
         perPage = newPerPage;
         if (status === true) {
-            // Search đang hoạt động
+            updatePageDomAndBtnNextWhenSearch(result, perPage);
             onLoadDefault(result, perPage);
         } else if (status === false) {
-            // add đang hoạt động
             onLoadDefault(result, perPage);
         } else if (status === undefined) {
-            // mặc định chưa xảy ra search hay add
             onLoadDefault(dataAfterChange, perPage);
         } else {
             console.log('>>> Error');
@@ -251,4 +282,4 @@ const App = () => {
     //---------------------------------------------------
 };
 
-App();
+app();

@@ -48,10 +48,10 @@ export const handleChangeData = (data) => {
     return newTotal;
 };
 // LẤY CHỮ CÁI ĐẦU LÀM AVT
-const handleAvt = (fullName) => {
+export const handleAvt = (fullName) => {
+    fullName = fullName.replace(fullName.replace(/[^0-9]/g, ''), '');
     const lastName = fullName.trim().split(' ').slice(-1).join(' ');
     const avt = lastName.charAt(0);
-
     return avt;
 };
 // LẤY ID CAO NHẤT
@@ -114,26 +114,6 @@ export const handleChangeNameToEmail = (fullName) => {
     }
     return email;
 };
-
-// -----------------------------------------------------------
-// SORT AZ
-export const handleSortAZ = (data) => {
-    const newData = data;
-    newData.sort((a, b) => {
-        return a['avt'].toString().localeCompare(b['avt']);
-    });
-    return newData;
-};
-// SORT ZA
-export const handleSortZA = (data) => {
-    const newData = data;
-    newData.sort((a, b) => {
-        return a['avt'].toString().localeCompare(b['avt']);
-    });
-    return newData.reverse();
-};
-// -----------------------------------------------------------
-
 // XÓA KHOẢNG TRẮNG TRONG CHUỖI
 const removeWhitespace = (value) => {
     return value.replace(/\s+/g, ' ').toLowerCase();
@@ -248,3 +228,24 @@ export const changeDataAdd = (listData, fullName, job, messageDOM) => {
     }
     return newData;
 };
+// -------------------------------SORT----------------------------
+const changeDataSort = (item) => {
+    const lastName = handleAvt(item.name.trim());
+    const newListName = {
+        ...item,
+        firstLetter: Array.from(lastName)[0],
+    };
+    return newListName;
+};
+
+export const handleSort = (list) => {
+    const newListName = list.map(changeDataSort);
+    newListName.sort((a, b) =>
+        a.firstLetter.localeCompare(b.firstLetter, 'fr', {
+            ignorePunctuation: true,
+        }),
+    );
+    return newListName;
+};
+
+// -----------------------------------------------------------

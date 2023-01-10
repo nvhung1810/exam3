@@ -1,4 +1,4 @@
-import { nameMember, jobPosition, emailMember } from './index.js';
+import { nameMember, jobPosition, emailMember, message } from './index.js';
 
 const modal = document.getElementById('myModal');
 
@@ -8,6 +8,13 @@ const btn = document.getElementById('myBtn');
 // Get the <span> element that closes the modal
 const closeBtn = document.getElementsByClassName('close')[0];
 
+export const clearInput = () => {
+    nameMember.value = '';
+    message.innerHTML = '';
+    jobPosition.value = '';
+    emailMember.value = '';
+};
+
 // When the user clicks the button, open the modal
 btn.onclick = function () {
     modal.style.display = 'block';
@@ -15,9 +22,7 @@ btn.onclick = function () {
 
 // When the user clicks on <closeBtn> (x), close the modal
 closeBtn.onclick = function () {
-    nameMember.value = '';
-    jobPosition.value = '';
-    emailMember.value = '';
+    clearInput();
     modal.style.display = 'none';
 };
 
@@ -25,5 +30,6 @@ closeBtn.onclick = function () {
 window.onclick = function (event) {
     if (event.target == modal) {
         modal.style.display = 'none';
+        clearInput();
     }
 };
